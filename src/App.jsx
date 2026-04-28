@@ -81,11 +81,27 @@ function fromDb(row) {
 }
 
 const db = {
-  insertUser: d      => sbFetch("users", { method:"POST", body:JSON.stringify(d) }),
-  updateUser: (id,d) => sbFetch(`users?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(d) }),
-  deleteUser: id     => sbFetch(`users?id=eq.${id}`, { method:"DELETE" }),
-  insertJob:  d      => sbFetch("jobs",  { method:"POST", body:JSON.stringify(toDb(d)) }),
-  updateJob:  (id,d) => sbFetch(`jobs?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(toDb(d)) }),
+  insertUser:    d      => sbFetch("users", { method:"POST", body:JSON.stringify(d) }),
+  updateUser:    (id,d) => sbFetch(`users?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(d) }),
+  deleteUser:    id     => sbFetch(`users?id=eq.${id}`, { method:"DELETE" }),
+  insertJob:     d      => sbFetch("jobs",  { method:"POST", body:JSON.stringify(toDb(d)) }),
+  updateJob:     (id,d) => sbFetch(`jobs?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(toDb(d)) }),
+  // Comments
+  getComments:   job_id => sbFetch(`comments?job_id=eq.${job_id}&order=created_at.asc`),
+  insertComment: d      => sbFetch("comments", { method:"POST", body:JSON.stringify(d) }),
+  // File upload to Supabase Storage
+  uploadFile: async (jobId, file) => {
+    const ext  = file.name.split(".").pop();
+    const path = `${jobId}/${Date.now()}-${file.name}`;
+    const r    = await fetch(`${SUPABASE_URL}/storage/v1/object/job-files/${path}`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": file.type || "application/octet-stream" },
+      body: file,
+    });
+    if (!r.ok) throw new Error(await r.text());
+    return { path, name: file.name, size: file.size, type: file.type };
+  },
+  getFileUrl: path => `${SUPABASE_URL}/storage/v1/object/public/job-files/${path}`,
 };
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -372,6 +388,170 @@ function Login({ onLogin, users }) {
   );
 }
 
+
+// ═══════════════════════════════════════════════════════════════════════════
+// COMMENT THREAD — used in both new job form and job cards
+// ═══════════════════════════════════════════════════════════════════════════
+function CommentThread({ jobId, userName, isNew = false, initialComments = [] }) {
+  const [comments, setComments] = useState(initialComments);
+  const [text, setText]         = useState("");
+  const [files, setFiles]       = useState([]); // [{name,size,type,file,url,path}]
+  const [sending, setSending]   = useState(false);
+  const [dragOver, setDragOver] = useState(false);
+  const fileRef = React.useRef();
+
+  // Load comments from DB if we have a real jobId
+  React.useEffect(() => {
+    if (!jobId || isNew || !USE_BACKEND) return;
+    db.getComments(jobId)
+      .then(rows => setComments(rows || []))
+      .catch(e => console.error("getComments failed:", e.message));
+  }, [jobId, isNew]);
+
+  function handleFiles(fileList) {
+    const arr = Array.from(fileList).map(f => ({
+      name: f.name, size: f.size, type: f.type, file: f,
+      url: URL.createObjectURL(f), path: null,
+    }));
+    setFiles(p => [...p, ...arr]);
+  }
+
+  function removeFile(i) { setFiles(p => p.filter((_,idx) => idx !== i)); }
+
+  async function send() {
+    if (!text.trim() && files.length === 0) return;
+    setSending(true);
+    try {
+      // Upload files first
+      const uploaded = await Promise.all(files.map(async f => {
+        if (!USE_BACKEND || !jobId) return { name: f.name, size: f.size, type: f.type, url: f.url, path: null };
+        const info = await db.uploadFile(jobId, f.file);
+        return { ...info, url: db.getFileUrl(info.path) };
+      }));
+
+      const comment = {
+        id:         "c-" + Date.now(),
+        job_id:     jobId || null,
+        author:     userName,
+        text:       text.trim(),
+        files:      JSON.stringify(uploaded),
+        created_at: new Date().toISOString(),
+      };
+
+      if (USE_BACKEND && jobId && !isNew) {
+        await db.insertComment(comment);
+      }
+
+      setComments(p => [...p, { ...comment, files: uploaded }]);
+      setText(""); setFiles([]);
+    } catch(e) {
+      console.error("send comment failed:", e.message);
+      alert("Failed to send: " + e.message);
+    } finally {
+      setSending(false);
+    }
+  }
+
+  function formatSize(bytes) {
+    if (bytes < 1024) return bytes + " B";
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + " KB";
+    return (bytes/(1024*1024)).toFixed(1) + " MB";
+  }
+
+  function fileIcon(type="") {
+    if (type.startsWith("image/")) return "🖼️";
+    if (type.includes("pdf"))       return "📄";
+    if (type.includes("word") || type.includes("doc")) return "📝";
+    if (type.includes("sheet") || type.includes("excel") || type.includes("csv")) return "📊";
+    if (type.includes("zip") || type.includes("rar"))  return "🗜️";
+    return "📎";
+  }
+
+  // Parse files field (may be string or array)
+  function parseFiles(f) {
+    if (!f) return [];
+    if (Array.isArray(f)) return f;
+    try { return JSON.parse(f); } catch { return []; }
+  }
+
+  return (
+    <div style={{ marginTop: isNew ? 0 : 0 }}>
+      {/* Existing comments */}
+      {comments.length > 0 && (
+        <div style={{ display:"flex", flexDirection:"column", gap:10, marginBottom:14 }}>
+          {comments.map((c, i) => {
+            const cFiles = parseFiles(c.files);
+            return (
+              <div key={c.id || i} style={{ background:"#f8faff", borderRadius:12, padding:"12px 14px", border:"1px solid #edf0f7" }}>
+                <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:6 }}>
+                  <div style={{ width:26, height:26, borderRadius:"50%", background:"linear-gradient(135deg,#0a1a6e,#2548e8)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <span style={{ fontSize:11, color:"#fff", fontWeight:700 }}>{(c.author||"?")[0].toUpperCase()}</span>
+                  </div>
+                  <span style={{ fontSize:12, fontWeight:700, color:"#0f172a" }}>{c.author}</span>
+                  <span style={{ fontSize:11, color:"#94a3b8", marginLeft:"auto" }}>{c.created_at ? new Date(c.created_at).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric",hour:"2-digit",minute:"2-digit"}) : ""}</span>
+                </div>
+                {c.text && <p style={{ fontSize:13, color:"#334155", lineHeight:1.6, marginBottom: cFiles.length ? 8 : 0 }}>{c.text}</p>}
+                {cFiles.length > 0 && (
+                  <div style={{ display:"flex", flexWrap:"wrap", gap:6, marginTop:6 }}>
+                    {cFiles.map((f,fi) => (
+                      <a key={fi} href={f.url} target="_blank" rel="noreferrer"
+                        style={{ display:"flex", alignItems:"center", gap:6, padding:"5px 10px", background:"#fff", border:"1px solid #e2e8f0", borderRadius:8, textDecoration:"none", fontSize:12, color:"#0a1a6e", fontWeight:600 }}>
+                        <span>{fileIcon(f.type)}</span>
+                        <span style={{ maxWidth:160, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</span>
+                        <span style={{ color:"#94a3b8", fontWeight:400 }}>{formatSize(f.size||0)}</span>
+                      </a>
+                    ))}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      {/* Input area */}
+      <div style={{ border:"1.5px solid #e2e8f0", borderRadius:12, background:"#fafbff", overflow:"hidden" }}
+        onDragOver={e=>{e.preventDefault();setDragOver(true);}}
+        onDragLeave={()=>setDragOver(false)}
+        onDrop={e=>{e.preventDefault();setDragOver(false);handleFiles(e.dataTransfer.files);}}>
+        <textarea
+          value={text} onChange={e=>setText(e.target.value)}
+          placeholder="Add a comment or update..."
+          rows={3}
+          style={{ width:"100%", padding:"11px 14px", border:"none", background:"transparent", fontSize:13, color:"#0f172a", resize:"none", outline:"none", display:"block" }}
+        />
+
+        {/* Staged files */}
+        {files.length > 0 && (
+          <div style={{ padding:"8px 12px", borderTop:"1px solid #f1f4fd", display:"flex", flexWrap:"wrap", gap:6 }}>
+            {files.map((f,i) => (
+              <div key={i} style={{ display:"flex", alignItems:"center", gap:6, padding:"4px 8px", background:"#eef2ff", border:"1px solid #c7d2fe", borderRadius:7, fontSize:12, color:"#3730a3" }}>
+                <span>{fileIcon(f.type)}</span>
+                <span style={{ maxWidth:130, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{f.name}</span>
+                <span style={{ color:"#6366f1" }}>{formatSize(f.size)}</span>
+                <button onClick={()=>removeFile(i)} style={{ background:"none", border:"none", cursor:"pointer", color:"#6366f1", fontSize:14, lineHeight:1, padding:0 }}>×</button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Toolbar */}
+        <div style={{ display:"flex", alignItems:"center", justifyContent:"space-between", padding:"8px 12px", borderTop:"1px solid #f1f4fd", background: dragOver ? "#eef2ff" : "transparent" }}>
+          <button onClick={()=>fileRef.current.click()}
+            style={{ display:"flex", alignItems:"center", gap:6, padding:"6px 12px", background:"#f1f4fd", border:"1px solid #e2e8f0", borderRadius:8, fontSize:12, fontWeight:600, color:"#475569", cursor:"pointer" }}>
+            📎 Attach File
+          </button>
+          <input ref={fileRef} type="file" multiple style={{ display:"none" }} onChange={e=>handleFiles(e.target.files)}/>
+          <button onClick={send} disabled={sending || (!text.trim() && files.length===0)}
+            style={{ padding:"7px 16px", background: (text.trim()||files.length) ? "linear-gradient(135deg,#0a1a6e,#2548e8)" : "#e2e8f0", border:"none", borderRadius:8, color: (text.trim()||files.length) ? "#fff" : "#94a3b8", fontSize:13, fontWeight:700, cursor: (text.trim()||files.length) ? "pointer" : "default" }}>
+            {sending ? "Sending…" : "Send →"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ═══════════════════════════════════════════════════════════════════════════
 // CUSTOMER PORTAL
 // ═══════════════════════════════════════════════════════════════════════════
@@ -379,14 +559,17 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
   const mine     = jobs.filter(j => j.userId === session.user.id);
   const invoiced = mine.reduce((s,j)=>s+(j.amount||0),0);
   const paid     = mine.reduce((s,j)=>s+(j.amountPaid||0),0);
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ title:"", category:CATS[0], description:"", priority:"medium" });
-  const [ok, setOk] = useState(false);
+  const [showForm, setShowForm]     = useState(false);
+  const [form, setForm]             = useState({ title:"", category:CATS[0], description:"", priority:"medium" });
+  const [formComments, setFormComments] = useState([]);
+  const [ok, setOk]                 = useState(false);
+  const [expandedJob, setExpandedJob] = useState(null);
 
   function submit() {
     if (!form.title.trim() || !form.description.trim()) return;
-    onNewJob({ ...form, userId:session.user.id });
+    onNewJob({ ...form, userId:session.user.id, initialComments: formComments });
     setForm({ title:"", category:CATS[0], description:"", priority:"medium" });
+    setFormComments([]);
     setShowForm(false); setOk(true); setTimeout(()=>setOk(false),4000);
   }
 
@@ -495,6 +678,19 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
                         <p style={{ fontSize:10, color:"#cbd5e1" }}>{fmt(j.createdAt)}</p>
                       </div>
                     </div>
+                    {/* Comments toggle */}
+                    <div style={{ marginTop:12, paddingTop:12, borderTop:"1px solid #f1f4fd" }}>
+                      <button onClick={()=>setExpandedJob(expandedJob===j.id ? null : j.id)}
+                        style={{ background:"none", border:"none", cursor:"pointer", fontSize:12, color:"#6366f1", fontWeight:600, padding:0, display:"flex", alignItems:"center", gap:6 }}>
+                        💬 {expandedJob===j.id ? "Hide" : "Comments & Files"}
+                        <span style={{ fontSize:10, color:"#94a3b8" }}>{expandedJob===j.id ? "▲" : "▼"}</span>
+                      </button>
+                      {expandedJob===j.id && (
+                        <div style={{ marginTop:12 }}>
+                          <CommentThread jobId={j.id} userName={session.user.name} isNew={false} />
+                        </div>
+                      )}
+                    </div>
                   </div>
                 );
               })}
@@ -533,8 +729,12 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
               <textarea value={form.description} onChange={e=>setForm({...form,description:e.target.value})} placeholder="Describe your compliance need in detail..." rows={4}
                 style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #e2e8f0", borderRadius:11, fontSize:13, color:"#0f172a", resize:"vertical", background:"#fafbff" }}/>
             </div>
+            <div style={{ marginBottom:18 }}>
+              <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:8 }}>Comments & Attachments</label>
+              <CommentThread jobId={null} userName={session.user.name} isNew={true} initialComments={formComments} />
+            </div>
             <div style={{ display:"flex", gap:10 }}>
-              <button onClick={()=>setShowForm(false)} style={{ flex:1, padding:"12px", background:"#f8faff", border:"1px solid #e2e8f0", borderRadius:11, fontSize:14, fontWeight:600, color:"#64748b" }}>Cancel</button>
+              <button onClick={()=>{ setShowForm(false); setFormComments([]); }} style={{ flex:1, padding:"12px", background:"#f8faff", border:"1px solid #e2e8f0", borderRadius:11, fontSize:14, fontWeight:600, color:"#64748b" }}>Cancel</button>
               <button onClick={submit} className="btn-primary" style={{ flex:2, padding:"12px", background:"linear-gradient(135deg,#0a1a6e,#2548e8)", border:"none", borderRadius:11, color:"#fff", fontSize:14, fontWeight:700 }}>Submit Request</button>
             </div>
           </div>
