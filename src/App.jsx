@@ -365,18 +365,7 @@ function Login({ onLogin, users }) {
             {busy ? "Signing in…" : "Sign In →"}
           </button>
 
-          <div style={{ marginTop:22, padding:"14px 16px", background:"#fff", borderRadius:12, border:"1px solid #edf0f7" }}>
-            <p style={{ fontSize:10, fontWeight:700, color:"#94a3b8", letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:8 }}>
-              {mode==="customer" ? "Demo Accounts" : "Admin Access"}
-            </p>
-            {mode==="customer"
-              ? users.map(u=><p key={u.id} style={{ color:"#64748b", fontSize:12, marginTop:4 }}>
-                  <span style={{ color:"#0a1a6e", fontWeight:700 }}>{u.username}</span>
-                  <span style={{ color:"#94a3b8" }}> / </span>{u.password}
-                  <span style={{ color:"#94a3b8", marginLeft:6 }}>— {u.name.split(" ")[0]}</span>
-                </p>)
-              : <p style={{ color:"#64748b", fontSize:12 }}><span style={{ color:"#0a1a6e", fontWeight:700 }}>admin</span> / taxit2024</p>}
-          </div>
+
         </div>
       </div>
     </div>
