@@ -90,8 +90,8 @@ const db = {
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
 const uid  = () => "u-" + Date.now() + Math.random().toString(36).slice(2,6);
-let _jidCounter = SEED_JOBS.length + 1;
-const jid  = () => "JR-" + String(_jidCounter++).padStart(3, "0");
+// Use timestamp+random so ID is always unique across page reloads
+const jid = () => "JR-" + Date.now() + "-" + Math.random().toString(36).slice(2,5).toUpperCase();
 const fmt  = iso => new Date(iso).toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"});
 const sar  = n   => `SAR ${Number(n||0).toLocaleString()}`;
 const pct  = (a,b) => b>0 ? Math.min(100,Math.round(a/b*100)) : 0;
