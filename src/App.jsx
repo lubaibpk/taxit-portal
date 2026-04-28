@@ -1083,23 +1083,37 @@ function UserModal({ editing, form, f, showPw, setShowPw, err, onSave, onClose }
 // ═══════════════════════════════════════════════════════════════════════════
 function SetupView() {
   const [copied, setCopied] = useState(false);
-  const sql = `CREATE TABLE users (
-  id TEXT PRIMARY KEY, username TEXT UNIQUE NOT NULL,
-  password TEXT NOT NULL, name TEXT NOT NULL,
-  company TEXT DEFAULT '', phone TEXT DEFAULT ''
+  const sql = `-- Run this in Supabase SQL Editor
+DROP TABLE IF EXISTS public.jobs;
+DROP TABLE IF EXISTS public.users;
+
+CREATE TABLE public.users (
+  id        TEXT PRIMARY KEY,
+  username  TEXT UNIQUE NOT NULL,
+  password  TEXT NOT NULL,
+  name      TEXT NOT NULL,
+  company   TEXT DEFAULT '',
+  phone     TEXT DEFAULT ''
 );
-CREATE TABLE jobs (
-  id TEXT PRIMARY KEY, user_id TEXT REFERENCES users(id),
-  title TEXT NOT NULL, category TEXT, description TEXT,
-  priority TEXT DEFAULT 'medium', status TEXT DEFAULT 'pending',
-  payment TEXT DEFAULT 'unpaid', amount NUMERIC DEFAULT 0,
-  amount_paid NUMERIC DEFAULT 0, admin_note TEXT DEFAULT '',
-  created_at TIMESTAMPTZ DEFAULT NOW(), updated_at TIMESTAMPTZ DEFAULT NOW()
+
+CREATE TABLE public.jobs (
+  id           TEXT PRIMARY KEY,
+  "userId"     TEXT REFERENCES public.users(id),
+  title        TEXT NOT NULL DEFAULT '',
+  category     TEXT DEFAULT '',
+  description  TEXT DEFAULT '',
+  priority     TEXT DEFAULT 'medium',
+  status       TEXT DEFAULT 'pending',
+  payment      TEXT DEFAULT 'unpaid',
+  amount       NUMERIC(12,2) DEFAULT 0,
+  "amountPaid" NUMERIC(12,2) DEFAULT 0,
+  "createdAt"  TIMESTAMPTZ DEFAULT NOW(),
+  "updatedAt"  TIMESTAMPTZ DEFAULT NOW(),
+  "adminNote"  TEXT DEFAULT ''
 );
-ALTER TABLE users ENABLE ROW LEVEL SECURITY;
-ALTER TABLE jobs  ENABLE ROW LEVEL SECURITY;
-CREATE POLICY "all_users" ON users FOR ALL USING (true);
-CREATE POLICY "all_jobs"  ON jobs  FOR ALL USING (true);`;
+
+ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
+ALTER TABLE public.jobs  DISABLE ROW LEVEL SECURITY;`;
 
   function copy() { try{navigator.clipboard.writeText(sql);}catch(e){} setCopied(true); setTimeout(()=>setCopied(false),2500); }
 
