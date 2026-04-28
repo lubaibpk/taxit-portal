@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from "react";
+import React from 'react';
 
 // ─── CONFIG ──────────────────────────────────────────────────────────────────
 const SUPABASE_URL = process.env.REACT_APP_SUPABASE_URL || "";
