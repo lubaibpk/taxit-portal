@@ -52,13 +52,31 @@ async function sbFetch(path, opts={}) {
   return r.json();
 }
 
-// JS camelCase → Supabase quoted column names
+// JS camelCase → DB snake_case (matches your existing Supabase columns)
 function toDb(obj) {
-  const map = { userId:"userId", amountPaid:"amountPaid", createdAt:"createdAt", updatedAt:"updatedAt", adminNote:"adminNote" };
+  const map = {
+    userId:     "user_id",
+    amountPaid: "amount_paid",
+    createdAt:  "created_at",
+    updatedAt:  "updated_at",
+    adminNote:  "admin_note"
+  };
   const out = {};
-  for (const [k, v] of Object.entries(obj)) {
-    out[map[k] || k] = v;
-  }
+  for (const [k, v] of Object.entries(obj)) out[map[k] || k] = v;
+  return out;
+}
+
+// DB snake_case → JS camelCase (for reading rows back from Supabase)
+function fromDb(row) {
+  const map = {
+    user_id:     "userId",
+    amount_paid: "amountPaid",
+    created_at:  "createdAt",
+    updated_at:  "updatedAt",
+    admin_note:  "adminNote"
+  };
+  const out = {};
+  for (const [k, v] of Object.entries(row)) out[map[k] || k] = v;
   return out;
 }
 
@@ -1097,19 +1115,19 @@ CREATE TABLE public.users (
 );
 
 CREATE TABLE public.jobs (
-  id           TEXT PRIMARY KEY,
-  "userId"     TEXT REFERENCES public.users(id),
-  title        TEXT NOT NULL DEFAULT '',
-  category     TEXT DEFAULT '',
-  description  TEXT DEFAULT '',
-  priority     TEXT DEFAULT 'medium',
-  status       TEXT DEFAULT 'pending',
-  payment      TEXT DEFAULT 'unpaid',
-  amount       NUMERIC(12,2) DEFAULT 0,
-  "amountPaid" NUMERIC(12,2) DEFAULT 0,
-  "createdAt"  TIMESTAMPTZ DEFAULT NOW(),
-  "updatedAt"  TIMESTAMPTZ DEFAULT NOW(),
-  "adminNote"  TEXT DEFAULT ''
+  id          TEXT PRIMARY KEY,
+  user_id     TEXT REFERENCES public.users(id),
+  title       TEXT NOT NULL DEFAULT '',
+  category    TEXT DEFAULT '',
+  description TEXT DEFAULT '',
+  priority    TEXT DEFAULT 'medium',
+  status      TEXT DEFAULT 'pending',
+  payment     TEXT DEFAULT 'unpaid',
+  amount      NUMERIC(12,2) DEFAULT 0,
+  amount_paid NUMERIC(12,2) DEFAULT 0,
+  created_at  TIMESTAMPTZ DEFAULT NOW(),
+  updated_at  TIMESTAMPTZ DEFAULT NOW(),
+  admin_note  TEXT DEFAULT ''
 );
 
 ALTER TABLE public.users DISABLE ROW LEVEL SECURITY;
@@ -1384,7 +1402,7 @@ function AdminShell({ jobs, users, onUpdate, onAddUser, onEditUser, onDeleteUser
 // ═══════════════════════════════════════════════════════════════════════════
 // ─── SUPABASE DATA HELPERS ───────────────────────────────────────────────────
 async function loadAll(table) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=createdat.asc`, {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*`, {
     headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
   });
   if (!r.ok) {
@@ -1392,7 +1410,8 @@ async function loadAll(table) {
     console.error(`loadAll(${table}) failed:`, r.status, msg);
     throw new Error(msg);
   }
-  return r.json();
+  const rows = await r.json();
+  return rows.map(fromDb);
 }
 
 export default function App() {
