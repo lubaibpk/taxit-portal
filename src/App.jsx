@@ -15,7 +15,7 @@ const SEED_USERS = [
   { id:"u3", username:"khalid", password:"khalid789", name:"Khalid bin Nasser", company:"Nasser Holdings",   phone:"+966 54 456 7890" },
 ];
 const ADMIN_CRED = { username: ADMIN_USERNAME, password: ADMIN_PASSWORD };
-const CATS = ["Tax Filing","Zakat","Advisory","Audit Support","Registration","VAT Refund","Transfer Pricing","Other"];
+const CATS = ["Tax Filing","HR Service","CR Renewal","Audit Support","Misa Renewal","VAT Refund","Transfer Pricing","Other"];
 
 const S = {
   pending:    { label:"Pending",     color:"#f59e0b", bg:"rgba(245,158,11,.13)", ring:"rgba(245,158,11,.35)" },
