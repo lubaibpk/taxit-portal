@@ -153,7 +153,7 @@ const Dot = ({p}) => {
 
 function ProgressBar({ paid, total, dark=false }) {
   const p = pct(paid,total);
- */ const fill = p >= 100 ? "#10b981" : p > 0 ? "#f59e0b" : (dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)"); /*
+<!-- const fill = p >= 100 ? "#10b981" : p > 0 ? "#f59e0b" : (dark ? "rgba(255,255,255,.1)" : "rgba(0,0,0,.06)"); -->
   return (
     <div style={{ width:"100%", height:5, background: dark ? "rgba(255,255,255,.07)" : "rgba(0,0,0,.06)", borderRadius:99, overflow:"hidden" }}>
       <div style={{ height:"100%", width:`${p}%`, background: p > 0 ? (p >= 100 ? "#10b981" : "#f59e0b") : "transparent", borderRadius:99, transition:"width .6s cubic-bezier(.22,1,.36,1)" }}/>
