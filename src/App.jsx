@@ -44,15 +44,30 @@ async function sbFetch(path, opts={}) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     ...opts, headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}`, "Content-Type":"application/json", Prefer:"return=representation", ...(opts.headers||{}) }
   });
-  if (!r.ok) throw new Error(await r.text());
+  if (!r.ok) {
+    const msg = await r.text();
+    console.error("Supabase error:", r.status, msg);
+    throw new Error(msg);
+  }
   return r.json();
 }
+
+// JS camelCase → Supabase quoted column names
+function toDb(obj) {
+  const map = { userId:"userId", amountPaid:"amountPaid", createdAt:"createdAt", updatedAt:"updatedAt", adminNote:"adminNote" };
+  const out = {};
+  for (const [k, v] of Object.entries(obj)) {
+    out[map[k] || k] = v;
+  }
+  return out;
+}
+
 const db = {
   insertUser: d      => sbFetch("users", { method:"POST", body:JSON.stringify(d) }),
   updateUser: (id,d) => sbFetch(`users?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(d) }),
   deleteUser: id     => sbFetch(`users?id=eq.${id}`, { method:"DELETE" }),
-  insertJob:  d      => sbFetch("jobs",  { method:"POST", body:JSON.stringify(d) }),
-  updateJob:  (id,d) => sbFetch(`jobs?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(d) }),
+  insertJob:  d      => sbFetch("jobs",  { method:"POST", body:JSON.stringify(toDb(d)) }),
+  updateJob:  (id,d) => sbFetch(`jobs?id=eq.${id}`, { method:"PATCH", body:JSON.stringify(toDb(d)) }),
 };
 
 // ─── UTILS ───────────────────────────────────────────────────────────────────
@@ -1355,10 +1370,14 @@ function AdminShell({ jobs, users, onUpdate, onAddUser, onEditUser, onDeleteUser
 // ═══════════════════════════════════════════════════════════════════════════
 // ─── SUPABASE DATA HELPERS ───────────────────────────────────────────────────
 async function loadAll(table) {
-  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*`, {
+  const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*&order=createdat.asc`, {
     headers:{ apikey:SUPABASE_KEY, Authorization:`Bearer ${SUPABASE_KEY}` }
   });
-  if (!r.ok) throw new Error(await r.text());
+  if (!r.ok) {
+    const msg = await r.text();
+    console.error(`loadAll(${table}) failed:`, r.status, msg);
+    throw new Error(msg);
+  }
   return r.json();
 }
 
@@ -1377,11 +1396,34 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  const addJob    = useCallback(d   => { const j={id:jid(),...d,status:"pending",payment:"unpaid",amount:0,amountPaid:0,createdAt:new Date().toISOString(),updatedAt:new Date().toISOString(),adminNote:""}; if(USE_BACKEND)db.insertJob(j).catch(console.error); setJobs(p=>[...p,j]); },[]);
-  const updateJob = useCallback((id,upd) => { if(USE_BACKEND)db.updateJob(id,upd).catch(console.error); setJobs(p=>p.map(j=>j.id===id?{...j,...upd}:j)); },[]);
-  const addUser   = useCallback(u   => { if(USE_BACKEND)db.insertUser(u).catch(console.error); setUsers(p=>[...p,u]); },[]);
-  const editUser  = useCallback((id,upd) => { if(USE_BACKEND)db.updateUser(id,upd).catch(console.error); setUsers(p=>p.map(u=>u.id===id?{...u,...upd}:u)); },[]);
-  const delUser   = useCallback(id  => { if(USE_BACKEND)db.deleteUser(id).catch(console.error); setUsers(p=>p.filter(u=>u.id!==id)); },[]);
+  const addJob = useCallback(d => {
+    const j = {
+      id: jid(), ...d,
+      status: "pending", payment: "unpaid",
+      amount: 0, amountPaid: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      adminNote: ""
+    };
+    if (USE_BACKEND) {
+      db.insertJob(j)
+        .then(() => console.log("✅ Job saved to DB:", j.id))
+        .catch(e  => console.error("❌ insertJob failed:", e.message));
+    }
+    setJobs(p => [...p, j]);
+  }, []);
+  const updateJob = useCallback((id, upd) => {
+    const withTime = { ...upd, updatedAt: new Date().toISOString() };
+    if (USE_BACKEND) {
+      db.updateJob(id, withTime)
+        .then(() => console.log("✅ Job updated in DB:", id))
+        .catch(e  => console.error("❌ updateJob failed:", e.message));
+    }
+    setJobs(p => p.map(j => j.id === id ? { ...j, ...withTime } : j));
+  }, []);
+  const addUser  = useCallback(u     => { if(USE_BACKEND)db.insertUser(u).catch(e=>console.error("❌ insertUser:",e.message)); setUsers(p=>[...p,u]); }, []);
+  const editUser = useCallback((id,upd) => { if(USE_BACKEND)db.updateUser(id,upd).catch(e=>console.error("❌ updateUser:",e.message)); setUsers(p=>p.map(u=>u.id===id?{...u,...upd}:u)); }, []);
+  const delUser  = useCallback(id    => { if(USE_BACKEND)db.deleteUser(id).catch(e=>console.error("❌ deleteUser:",e.message)); setUsers(p=>p.filter(u=>u.id!==id)); }, []);
 
   if (loading) return (
     <div style={{ minHeight:"100vh", background:"#f1f4fd", display:"flex", alignItems:"center", justifyContent:"center" }}>
