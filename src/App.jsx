@@ -10,9 +10,7 @@ const ADMIN_PASSWORD = process.env.REACT_APP_ADMIN_PASSWORD || "taxit2024";
 
 // ─── SEED DATA ───────────────────────────────────────────────────────────────
 const SEED_USERS = [
-  { id:"u1", username:"ahmed",  password:"ahmed123",  name:"Ahmed Al-Rashid",   company:"Al-Rashid Trading", phone:"+966 50 123 4567" },
-  { id:"u2", username:"sara",   password:"sara456",   name:"Sara Al-Mahmoud",   company:"Gulf Solutions",    phone:"+966 55 987 6543" },
-  { id:"u3", username:"khalid", password:"khalid789", name:"Khalid bin Nasser", company:"Nasser Holdings",   phone:"+966 54 456 7890" },
+  { id:"u1", username:"lubaib",  password:"1234",  name:"Lubaib PK",   company:"Taxit Consultancy", phone:"+966 00000000" },
 ];
 const ADMIN_CRED = { username: ADMIN_USERNAME, password: ADMIN_PASSWORD };
 const CATS = ["Tax Filing","HR Service","CR Renewal","Audit Support","Misa Renewal","VAT Refund","Transfer Pricing","Other"];
@@ -31,12 +29,8 @@ const P = {
 };
 
 const SEED_JOBS = [
-  { id:"JR-001", userId:"u1", title:"VAT Return Filing Q1",       category:"Tax Filing",    description:"Quarterly VAT return and submission to ZATCA.",             priority:"high",   status:"completed",  payment:"paid",    amount:1800, amountPaid:1800, createdAt:"2025-02-10T09:00:00Z", updatedAt:"2025-03-01T14:00:00Z", adminNote:"Filed. ZATCA ref #ZT-2025-001." },
-  { id:"JR-002", userId:"u2", title:"Zakat Assessment 2024",      category:"Zakat",         description:"Annual Zakat calculation and compliance report.",           priority:"medium", status:"inprogress", payment:"partial", amount:4500, amountPaid:2000, createdAt:"2025-03-15T11:00:00Z", updatedAt:"2025-04-10T10:00:00Z", adminNote:"70% complete. Final report soon." },
-  { id:"JR-003", userId:"u1", title:"Transfer Pricing Study",     category:"Advisory",      description:"Transfer pricing docs for related-party transactions.",     priority:"urgent", status:"pending",    payment:"unpaid",  amount:8500, amountPaid:0,    createdAt:"2025-04-18T08:30:00Z", updatedAt:"2025-04-18T08:30:00Z", adminNote:"" },
-  { id:"JR-004", userId:"u3", title:"Corporate Tax Registration", category:"Registration",  description:"ZATCA corporate income tax registration and setup.",         priority:"low",    status:"pending",    payment:"unpaid",  amount:2200, amountPaid:0,    createdAt:"2025-04-22T13:00:00Z", updatedAt:"2025-04-22T13:00:00Z", adminNote:"" },
-  { id:"JR-005", userId:"u2", title:"VAT Audit Defense",          category:"Audit Support", description:"Documentation and defense for ZATCA audit.",                priority:"urgent", status:"inprogress", payment:"partial", amount:6000, amountPaid:3000, createdAt:"2025-04-05T10:00:00Z", updatedAt:"2025-04-20T16:00:00Z", adminNote:"Docs compiled. Awaiting ZATCA schedule." },
-  { id:"JR-006", userId:"u3", title:"Withholding Tax Advisory",   category:"Advisory",      description:"Advisory on withholding tax for cross-border payments.",    priority:"medium", status:"completed",  payment:"paid",    amount:3200, amountPaid:3200, createdAt:"2025-03-01T09:00:00Z", updatedAt:"2025-03-20T12:00:00Z", adminNote:"Report delivered and approved." },
+  { id:"JR-001", userId:"u1", title:"VAT Return Filing Q1",       category:"Tax Filing",    description:"Quarterly VAT return and submission to ZATCA.",             priority:"high",   status:"completed",  payment:"paid",    amount:1800, amountPaid:1800, createdAt:"2025-02-10T09:00:00Z", updatedAt:"2025-03-01T14:00:00Z", adminNote:"Filed. TAXIT ref #ZT-2025-001." },
+    amount:3200, amountPaid:3200, createdAt:"2025-03-01T09:00:00Z", updatedAt:"2025-03-20T12:00:00Z", adminNote:"Report delivered and approved." },
 ];
 
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
