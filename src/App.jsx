@@ -91,15 +91,29 @@ const db = {
   insertComment: d      => sbFetch("comments", { method:"POST", body:JSON.stringify(d) }),
   // File upload to Supabase Storage
   uploadFile: async (jobId, file) => {
-    const ext  = file.name.split(".").pop();
-    const path = `${jobId}/${Date.now()}-${file.name}`;
-    const r    = await fetch(`${SUPABASE_URL}/storage/v1/object/job-files/${path}`, {
-      method: "POST",
-      headers: { apikey: SUPABASE_KEY, Authorization: `Bearer ${SUPABASE_KEY}`, "Content-Type": file.type || "application/octet-stream" },
-      body: file,
-    });
-    if (!r.ok) throw new Error(await r.text());
-    return { path, name: file.name, size: file.size, type: file.type };
+    const safeName = file.name.replace(/[^a-zA-Z0-9._-]/g, "_");
+    const path = `${jobId}/${Date.now()}-${safeName}`;
+    // Try POST first, fallback to PUT (upsert)
+    for (const method of ["POST", "PUT"]) {
+      const r = await fetch(`${SUPABASE_URL}/storage/v1/object/job-files/${path}`, {
+        method,
+        headers: {
+          apikey: SUPABASE_KEY,
+          Authorization: `Bearer ${SUPABASE_KEY}`,
+          "Content-Type": file.type || "application/octet-stream",
+          "x-upsert": "true",
+        },
+        body: file,
+      });
+      if (r.ok) return { path, name: file.name, size: file.size, type: file.type };
+      const msg = await r.text();
+      let parsed; try { parsed = JSON.parse(msg); } catch { parsed = { message: msg }; }
+      // Bucket not found — tell user clearly
+      if (parsed.error === "Bucket not found" || parsed.statusCode === "404") {
+        throw new Error("Storage bucket not found. Please create a public bucket named 'job-files' in Supabase → Storage.");
+      }
+      if (method === "PUT") throw new Error(parsed.message || msg);
+    }
   },
   getFileUrl: path => `${SUPABASE_URL}/storage/v1/object/public/job-files/${path}`,
 };
@@ -822,11 +836,21 @@ function DashView({ jobs, users }) {
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN — JOB REQUESTS
 // ═══════════════════════════════════════════════════════════════════════════
-function JobsView({ jobs, users, onUpdate }) {
-  const [tab, setTab]       = useState("all");
-  const [search, setSearch] = useState("");
+function JobsView({ jobs, users, onUpdate, onAddJob }) {
+  const [tab, setTab]         = useState("all");
+  const [search, setSearch]   = useState("");
   const [editJob, setEditJob] = useState(null);
-  const [ef, setEf]         = useState({});
+  const [ef, setEf]           = useState({});
+  const [showAdd, setShowAdd] = useState(false);
+  const [nf, setNf]           = useState({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+  const CATS_LIST = ["Tax Filing","Zakat","Advisory","Registration","Audit Support","Other"];
+
+  function submitNew() {
+    if (!nf.userId || !nf.title.trim() || !nf.description.trim()) return;
+    onAddJob({ ...nf });
+    setNf({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+    setShowAdd(false);
+  }
 
   const filtered = jobs.filter(j => {
     const ok = tab==="all" || j.status===tab;
@@ -852,10 +876,74 @@ function JobsView({ jobs, users, onUpdate }) {
 
   return (
     <div>
-      <div className="fade-up" style={{ marginBottom:20 }}>
-        <h2 style={{ fontSize:22, fontWeight:800, color:"#f8fafc", letterSpacing:"-0.02em" }}>Job Requests</h2>
-        <p style={{ color:"#475569", fontSize:13, marginTop:3 }}>Manage all client compliance requests</p>
+      <div className="fade-up" style={{ marginBottom:20, display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
+        <div>
+          <h2 style={{ fontSize:22, fontWeight:800, color:"#f8fafc", letterSpacing:"-0.02em" }}>Job Requests</h2>
+          <p style={{ color:"#475569", fontSize:13, marginTop:3 }}>Manage all client compliance requests</p>
+        </div>
+        <button onClick={()=>setShowAdd(true)} style={{ display:"flex", alignItems:"center", gap:7, padding:"10px 18px", background:"linear-gradient(135deg,#059669,#10b981)", border:"none", borderRadius:11, color:"#fff", fontSize:13, fontWeight:700, cursor:"pointer" }}>
+          <span style={{ fontSize:16 }}>+</span> Assign Job to Client
+        </button>
       </div>
+
+      {/* Admin New Job Modal */}
+      {showAdd && (
+        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.6)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:16 }}
+          onClick={e=>e.target===e.currentTarget&&setShowAdd(false)}>
+          <div className="fade-up" style={{ background:"#1e293b", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:480, boxShadow:"0 24px 80px rgba(0,0,0,.4)", border:"1px solid #334155" }}>
+            <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:22 }}>
+              <h3 style={{ fontSize:18, fontWeight:800, color:"#f8fafc" }}>Assign New Job to Client</h3>
+              <button onClick={()=>setShowAdd(false)} style={{ background:"#334155", border:"none", borderRadius:8, width:32, height:32, color:"#94a3b8", fontSize:18, cursor:"pointer" }}>×</button>
+            </div>
+
+            {/* Client selector */}
+            <div style={{ marginBottom:14 }}>
+              <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Client *</label>
+              <select value={nf.userId} onChange={e=>setNf({...nf,userId:e.target.value})}
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #334155", borderRadius:11, fontSize:13, color:"#f1f5f9", background:"#0f172a" }}>
+                <option value="">— Select a client —</option>
+                {users.map(u=><option key={u.id} value={u.id}>{u.name} ({u.company || u.username})</option>)}
+              </select>
+            </div>
+
+            <div style={{ marginBottom:14 }}>
+              <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Job Title *</label>
+              <input value={nf.title} onChange={e=>setNf({...nf,title:e.target.value})} placeholder="e.g. VAT Return Q2 2025"
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #334155", borderRadius:11, fontSize:14, color:"#f1f5f9", background:"#0f172a" }}/>
+            </div>
+
+            <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
+              <div>
+                <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Category</label>
+                <select value={nf.category} onChange={e=>setNf({...nf,category:e.target.value})}
+                  style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #334155", borderRadius:11, fontSize:13, color:"#f1f5f9", background:"#0f172a" }}>
+                  {CATS_LIST.map(c=><option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div>
+                <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Priority</label>
+                <select value={nf.priority} onChange={e=>setNf({...nf,priority:e.target.value})}
+                  style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #334155", borderRadius:11, fontSize:13, color:"#f1f5f9", background:"#0f172a" }}>
+                  {[["low","Low"],["medium","Medium"],["high","High"],["urgent","Urgent"]].map(([k,v])=><option key={k} value={k}>{v}</option>)}
+                </select>
+              </div>
+            </div>
+
+            <div style={{ marginBottom:22 }}>
+              <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#94a3b8", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Description *</label>
+              <textarea value={nf.description} onChange={e=>setNf({...nf,description:e.target.value})} placeholder="Describe the job scope..." rows={4}
+                style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #334155", borderRadius:11, fontSize:13, color:"#f1f5f9", background:"#0f172a", resize:"vertical" }}/>
+            </div>
+
+            <div style={{ display:"flex", gap:10 }}>
+              <button onClick={()=>setShowAdd(false)} style={{ flex:1, padding:"12px", background:"#334155", border:"none", borderRadius:11, fontSize:14, fontWeight:600, color:"#94a3b8", cursor:"pointer" }}>Cancel</button>
+              <button onClick={submitNew} style={{ flex:2, padding:"12px", background:"linear-gradient(135deg,#059669,#10b981)", border:"none", borderRadius:11, color:"#fff", fontSize:14, fontWeight:700, cursor:"pointer", opacity: (!nf.userId||!nf.title.trim()||!nf.description.trim()) ? 0.5 : 1 }}>
+                Assign Job
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="fade-up" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16, gap:10, flexWrap:"wrap" }}>
@@ -1397,7 +1485,7 @@ function SideNavBtn({ n, page, goPage, users, isMini }) {
   );
 }
 
-function AdminShell({ jobs, users, onUpdate, onAddUser, onEditUser, onDeleteUser, onLogout }) {
+function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, onDeleteUser, onLogout }) {
   const [page,       setPage]      = useState("dashboard");
   const [collapsed,  setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -1550,7 +1638,7 @@ function AdminShell({ jobs, users, onUpdate, onAddUser, onEditUser, onDeleteUser
         {/* Page content */}
         <div className="admin-content" style={{ padding:"26px 22px", flex:1 }}>
           {page==="dashboard" && <DashView jobs={jobs} users={users}/>}
-          {page==="jobs"      && <JobsView jobs={jobs} users={users} onUpdate={onUpdate}/>}
+          {page==="jobs"      && <JobsView jobs={jobs} users={users} onUpdate={onUpdate} onAddJob={onAddJob}/>}
           {page==="clients"   && <ClientsView jobs={jobs} users={users} onAddUser={onAddUser} onEditUser={onEditUser} onDeleteUser={onDeleteUser}/>}
           {page==="setup"     && <SetupView/>}
         </div>
@@ -1619,8 +1707,10 @@ export default function App() {
   }, []);
 
   const addJob = useCallback(d => {
+    // Strip UI-only fields before saving to DB
+    const { initialComments, ...jobData } = d;
     const j = {
-      id: jid(), ...d,
+      id: jid(), ...jobData,
       status: "pending", payment: "unpaid",
       amount: 0, amountPaid: 0,
       createdAt: new Date().toISOString(),
@@ -1629,8 +1719,16 @@ export default function App() {
     };
     if (USE_BACKEND) {
       db.insertJob(j)
-        .then(() => console.log("✅ Job saved to DB:", j.id))
-        .catch(e  => console.error("❌ insertJob failed:", e.message));
+        .then(() => {
+          console.log("✅ Job saved to DB:", j.id);
+          // Save any initial comments too
+          if (initialComments && initialComments.length > 0) {
+            initialComments.forEach(c => {
+              db.insertComment({ ...c, job_id: j.id }).catch(e => console.error("❌ insertComment failed:", e.message));
+            });
+          }
+        })
+        .catch(e => console.error("❌ insertJob failed:", e.message));
     }
     setJobs(p => [...p, j]);
   }, []);
@@ -1654,6 +1752,6 @@ export default function App() {
   );
 
   if (!session) return <Login onLogin={setSession} users={users}/>;
-  if (session.role==="admin") return <AdminShell jobs={jobs} users={users} onUpdate={updateJob} onAddUser={addUser} onEditUser={editUser} onDeleteUser={delUser} onLogout={()=>setSession(null)}/>;
+  if (session.role==="admin") return <AdminShell jobs={jobs} users={users} onUpdate={updateJob} onAddJob={addJob} onAddUser={addUser} onEditUser={editUser} onDeleteUser={delUser} onLogout={()=>setSession(null)}/>;
   return <CustomerPortal session={session} jobs={jobs} onNewJob={addJob} onLogout={()=>setSession(null)}/>;
 }
