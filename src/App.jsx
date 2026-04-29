@@ -15,7 +15,7 @@ const SEED_USERS = [
   { id:"u3", username:"khalid", password:"khalid789", name:"Khalid bin Nasser", company:"Nasser Holdings",   phone:"+966 54 456 7890" },
 ];
 const ADMIN_CRED = { username: ADMIN_USERNAME, password: ADMIN_PASSWORD };
-const CATS = ["Tax Filing","HR Service","CR Renewal","Audit Support","Misa Renewal","VAT Refund","Transfer Pricing","Other"];
+const CATS = ["Iqama renewal","Exit-re entry","CR/Article services","Mudad Services","Misa Services","VAT/Tax Services","Accounting services","Other"];
 
 const S = {
   pending:    { label:"Pending",     color:"#f59e0b", bg:"rgba(245,158,11,.13)", ring:"rgba(245,158,11,.35)" },
@@ -319,12 +319,12 @@ function Login({ onLogin, users }) {
         <div style={{ position:"absolute", bottom:100, right:-40, width:180, height:180, borderRadius:"50%", background:"rgba(255,215,0,.06)" }}/>
 
         <div style={{ position:"relative", zIndex:1 }}>
-          <TaxitLogo scale={1.1} dark/>
+          <TaxitLogo scale={2.0} dark/>
         </div>
 
         <div style={{ position:"relative", zIndex:1 }}>
           <p style={{ fontFamily:"'Instrument Serif',serif", fontSize:38, color:"#fff", lineHeight:1.25, marginBottom:20 }}>
-            Your compliance,<br/><em>made effortless.</em>
+            Compliance,<br/><em>Made Simple.</em>
           </p>
           <p style={{ fontSize:14, color:"rgba(255,255,255,.55)", lineHeight:1.7, maxWidth:320 }}>
             Submit requests, track progress, and manage payments — all in one secure platform built for Saudi Arabia compliance.
@@ -332,7 +332,7 @@ function Login({ onLogin, users }) {
         </div>
 
         <div style={{ position:"relative", zIndex:1, display:"flex", gap:24 }}>
-          {[["500+","Clients"],["99%","On-time"],["ZATCA","Certified"]].map(([v,l]) => (
+          {[["500+","Clients"],["99%","On-time"],["ISO","Certified"]].map(([v,l]) => (
             <div key={l}>
               <p style={{ fontSize:20, fontWeight:800, color:"#fff" }}>{v}</p>
               <p style={{ fontSize:11, color:"rgba(255,255,255,.45)", marginTop:2 }}>{l}</p>
@@ -350,7 +350,7 @@ function Login({ onLogin, users }) {
           <div style={{ display:"flex", justifyContent:"center", marginBottom:36 }}>
             <div className="hide-mobile" style={{ display:"none" }}/>
             <div style={{ display:"block" }}>
-              <TaxitLogo scale={0.95}/>
+              <TaxitLogo scale={1.3}/>
             </div>
           </div>
 
@@ -723,7 +723,7 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
             </div>
             <div style={{ marginBottom:14 }}>
               <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Title *</label>
-              <input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. VAT Return Q2 2025"
+              <input value={form.title} onChange={e=>setForm({...form,title:e.target.value})} placeholder="e.g. Iqama renewal for Ahmed "
                 style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #e2e8f0", borderRadius:11, fontSize:14, color:"#0f172a", background:"#fafbff" }}/>
             </div>
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
