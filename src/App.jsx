@@ -837,13 +837,24 @@ function DashView({ jobs, users }) {
 // ADMIN — JOB REQUESTS
 // ═══════════════════════════════════════════════════════════════════════════
 function JobsView({ jobs, users, onUpdate, onAddJob }) {
-  const [tab, setTab]         = useState("all");
-  const [search, setSearch]   = useState("");
-  const [editJob, setEditJob] = useState(null);
-  const [ef, setEf]           = useState({});
-  const [showAdd, setShowAdd] = useState(false);
-  const [nf, setNf]           = useState({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+  const [tab, setTab]           = useState("all");
+  const [search, setSearch]     = useState("");
+  const [editJob, setEditJob]   = useState(null);
+  const [ef, setEf]             = useState({});
+  const [showAdd, setShowAdd]   = useState(false);
+  const [nf, setNf]             = useState({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+  const [commentCounts, setCounts] = useState({}); // { jobId: number }
   const CATS_LIST = ["Tax Filing","Zakat","Advisory","Registration","Audit Support","Other"];
+
+  // Load comment counts for all jobs once
+  React.useEffect(() => {
+    if (!USE_BACKEND || jobs.length === 0) return;
+    jobs.forEach(j => {
+      db.getComments(j.id)
+        .then(rows => setCounts(p => ({ ...p, [j.id]: (rows||[]).length })))
+        .catch(() => {});
+    });
+  }, [jobs.length]);
 
   function submitNew() {
     if (!nf.userId || !nf.title.trim() || !nf.description.trim()) return;
@@ -989,8 +1000,15 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
                     <div style={{ display:"flex", alignItems:"center", gap:7 }}>
                       <Dot p={j.priority}/>
                       <div>
-                        <p style={{ fontSize:13, color:"#cbd5e1" }}>{j.title}</p>
-                        {j.adminNote && <p style={{ fontSize:10, color:"#818cf8", marginTop:1 }}>Note added</p>}
+                        <p onClick={()=>openEdit(j)} style={{ fontSize:13, color:"#93c5fd", fontWeight:600, cursor:"pointer", textDecoration:"underline", textDecorationColor:"rgba(147,197,253,.3)" }}>{j.title}</p>
+                        <div style={{ display:"flex", alignItems:"center", gap:6, marginTop:2 }}>
+                          {j.adminNote && <p style={{ fontSize:10, color:"#818cf8" }}>Note added</p>}
+                          {(commentCounts[j.id]||0) > 0 && (
+                            <span style={{ display:"inline-flex", alignItems:"center", gap:3, background:"rgba(99,102,241,.2)", border:"1px solid rgba(99,102,241,.4)", borderRadius:6, padding:"1px 6px", fontSize:10, color:"#a5b4fc", fontWeight:700 }}>
+                              💬 {commentCounts[j.id]}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                   </td>
@@ -1028,8 +1046,15 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
                 <p style={{ fontSize:11, color:"#818cf8", fontWeight:700 }}>{j.id}</p>
                 <SBadge v={j.status}/>
               </div>
-              <p style={{ fontSize:14, fontWeight:700, color:"#e2e8f0", marginBottom:4 }}>{j.title}</p>
-              <p style={{ fontSize:12, color:"#64748b", marginBottom:10 }}>{u?.name} · {u?.company}</p>
+              <p onClick={()=>openEdit(j)} style={{ fontSize:14, fontWeight:700, color:"#93c5fd", marginBottom:4, cursor:"pointer", textDecoration:"underline", textDecorationColor:"rgba(147,197,253,.3)" }}>{j.title}</p>
+              <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
+                <p style={{ fontSize:12, color:"#64748b" }}>{u?.name} · {u?.company}</p>
+                {(commentCounts[j.id]||0) > 0 && (
+                  <span style={{ display:"inline-flex", alignItems:"center", gap:3, background:"rgba(99,102,241,.2)", border:"1px solid rgba(99,102,241,.4)", borderRadius:6, padding:"1px 6px", fontSize:10, color:"#a5b4fc", fontWeight:700 }}>
+                    💬 {commentCounts[j.id]}
+                  </span>
+                )}
+              </div>
               <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
                 <PBadge v={j.payment}/>
                 {j.amount>0 && <p style={{ fontSize:13, fontWeight:700, color:jbl>0?"#fb923c":"#34d399" }}>{jbl>0?`Due ${sar(jbl)}`:"Paid"}</p>}
@@ -1103,6 +1128,13 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
             <p style={{ fontSize:10, fontWeight:700, color:"#475569", letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:8 }}>Note to Client</p>
             <textarea value={ef.adminNote} onChange={e=>setEf({...ef,adminNote:e.target.value})} placeholder="Progress update visible to client..." rows={3}
               style={{ width:"100%", padding:"11px 13px", background:"rgba(255,255,255,.07)", border:"1.5px solid rgba(255,255,255,.1)", borderRadius:10, color:"#f8fafc", fontSize:13, resize:"vertical", marginBottom:22 }}/>
+
+            <div style={{ marginBottom:22 }}>
+              <p style={{ fontSize:10, fontWeight:700, color:"#475569", letterSpacing:"0.08em", textTransform:"uppercase", marginBottom:10 }}>Client Comments & Attachments</p>
+              <div style={{ background:"rgba(255,255,255,.03)", border:"1px solid rgba(255,255,255,.08)", borderRadius:12, padding:14 }}>
+                <CommentThread jobId={editJob.id} userName="Admin" isNew={false} />
+              </div>
+            </div>
 
             <div style={{ display:"flex", gap:10 }}>
               <button onClick={()=>setEditJob(null)} style={{ flex:1, padding:"12px", background:"rgba(255,255,255,.06)", border:"1px solid rgba(255,255,255,.1)", borderRadius:11, color:"#64748b", fontSize:14 }}>Cancel</button>
