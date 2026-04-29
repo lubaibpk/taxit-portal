@@ -831,9 +831,9 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
   const [editJob, setEditJob]   = useState(null);
   const [ef, setEf]             = useState({});
   const [showAdd, setShowAdd]   = useState(false);
-  const [nf, setNf]             = useState({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+  const [nf, setNf]             = useState({ userId:"", title:"", category:"Iqama renewal", description:"", priority:"medium" });
   const [commentCounts, setCounts] = useState({}); // { jobId: number }
-  const CATS_LIST = ["Tax Filing","Zakat","Advisory","Registration","Audit Support","Other"];
+  const CATS_LIST = ["Iqama renewal","Exit-re entry","CR/Article services","Mudad Services","Misa Services","VAT/Tax Services","Accounting services","Other"];
 
   // Load comment counts for all jobs once
   React.useEffect(() => {
@@ -848,7 +848,7 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
   function submitNew() {
     if (!nf.userId || !nf.title.trim() || !nf.description.trim()) return;
     onAddJob({ ...nf });
-    setNf({ userId:"", title:"", category:"Tax Filing", description:"", priority:"medium" });
+    setNf({ userId:"", title:"", category:"Iqama renewal", description:"", priority:"medium" });
     setShowAdd(false);
   }
 
