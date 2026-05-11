@@ -29,6 +29,9 @@ const P = {
 
 const SEED_JOBS = [];
 
+// ─── LOGO BASE64 ─────────────────────────────────────────────────────────────
+const LOGO_PNG = "/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCAIIAggDASIAAhEBAxEB/8QAHQABAAICAwEBAAAAAAAAAAAAAAQFAgMBBggHCf/EAEkQAAIBAgIGBAgKCgIBBQEAAAABAgMEBREGBxIhMVETQWFxCCIyNFKBkaEUM0JDU1ZicrHBFRcYI4KTpdHS05KiFiRjc6Oy8P/EABwBAQACAwEBAQAAAAAAAAAAAAAEBgIDBQEHCP/EAEIRAAIBAwEEBwUFBgUDBQAAAAABAgMEEQUSITFBBhNRYXGBkSIyobHRBxQVUsEXMzRCktIjU1Th8CQ1YiVEsuLx/9oADAMBAAIRAxEAPwDxkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADdTtq9TyKUmub3IkU8Nqvy5xj7yTSs69X3YMxc4riyCC2hhtFeVOcvcbY2Nqvms+9snQ0W4lxwvM1uvEpAXytrdfMw9hz8HofQ0/+KNq0OpzkjH7wuwoAX/weh9DT/wCKOJWtu+NGHqWQeh1OUkPvC7ChBdSsLZ/NtdzZqnhlJ+RUnHv3mmejXMeGH5/UyVeJVAnVMNrLyJRl7mRqtvWp+XTklzy3EKraV6XvxZsU4vgzUACMZAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAzpU51ZbNOLk+w9jFyeEt44GBnSpVKssqcHIsbbDorKVd7T9FcCdGMYR2YxUUupI7Vto1SftVXhdnM0TrpcCuo4a+NaeXZH+5No21Cl5FNZ83vZtB3KFjQoe7Hf2keVSUuLAMalSnTWc5xj3si1MRoR8nam+xZI2VbmjS9+SR4ouXBEwFXPE6j8inFd+81Sv7l/LS7oogT1m2jwy/L64NioSZcgondXD41p+pmLr1nxrVP+TND1ynyizL7u+0vwUCr1lwrVP+TMlc3C+en7Qtcp84sfd32l6CmjfXMfnE+9I2wxOovLpxl3PI3w1m2lxyvL6GLoSRaAh08RoS8tSh6s0SaVWnUX7ucZdzJ1K6o1fckma3CS4owrWtCr5VNZ81uZCr4bJb6M9pcpcSzBrr2FCv70d/ajKNSUeB16pTnTlszi4vtMTsVSEKkdmcVJcmiBc4cnnKg8vsv+5wrnRqlPfSe0vib410+JWG2hb1q/xcM0ut7kYVITpy2ZxcXyZfUIxhRhGPBI0afYK5qNT3JeplUqbK3FLXtq1HfUhkua3o0nYqkI1IShJZprJnXpxcJyi+KeTPdSsVayTi9zFKpt8TgAHMNoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABzCMpyUYptvgkW1lYxpZTq5Sn1LqRLtLOpdSxHhzZhOait5FtLCdXKdXOEOXWy0pU4UobNOKijIFrtbKlbL2Vv7SJOo5cQG0lm9yI11e0qOcV48+S6isuLmrXfjyyj6K4Gm71Ojb+yt77D2FKUixr39Gnuj+8l2cPaQa19XqblLYXKP9yKCv3Gp3FbdnC7iTGlGJy2282232nABzzYAAAAAAAAAAAADlNp5ptM4ABKo31enucttcpf3J9C/o1N0n0cu3h7SmB0LfU7ijuzld5rlSjI7GCjt7qrQfiSzj6L4Fna3lKv4vkT5Pr7iwWmp0bj2XufYRp0pRN1alTrR2akU1+BzTjsU4wzbUVkmzIE/YjtbWN5ry8YBTYpT2LuT6pLaLkgYzTzpQqL5LyfrOfq1LrLZvs3myi8SKsAFQJoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAM6VOdWahBZtnFOEqk1CCzk+BdWdtG3p5LfN+UyfYWMrqXZFcWa6lRQRxZ2sLePpTfGRIBruK1OhT25vuXWy2xjTt6eFuiiG25MznOMIuU5JRXFsqry/nUzhSzhDn1s0XVxUuJ5yeUVwiuCNJXL7VZVfYpbo/FkmnRS3sAA4xvAAAAAAAAAAAAAAAAAAAAAAAAJFjbO4qNN5RjxZZRsbVL4vPtcmRsGqRTnTbyb3rtLItGl2tCVBTcU2+3eRKs5KWBFKKSWeS7QAdngaAarun0ltUh1tbu82mq6rwoUnKTWeXirmzXXcFTlt8MbzKOc7ihABQjoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA5SbeSWbZwWWFW3CvNfcX5km1tpXNRQiYzkorJvw+1VCG1JfvJcezsJQMK9WFGm6k3uXvLnTp07ensrckQW3JmN1XhQp7ct76lzKWvWnWqOc3m+pcjm5rTr1XOfqXJGiquoX8rmWzH3V/wAySLyWoX8rmWzH3V/zJLp09ld4ABzTaAAAAAAAAAAAAAAAAAAAAAAAAAAAcpuLTTaa4NG9Xt0ll0r9iI4NkK1Sn7kmvBnjSfE3u8uX89I4dzcP56ftNIMncVnxm/VnmzHsNjr13xrVP8AkzCUnJ5ybb5tnANcpylxZ7hIAAxPQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAADfY0HXrqL8lb5MvEkkklkkaLGh0FBRa8Z75G8uOm2n3elv8AefH6EKrPaYbSWbeSRS39w69Xc/Ej5K/MlYtcZLoIPe/K/sVhy9XvdqXUQ4Lj9DbRhj2mAAcIkAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA3WUI1LqnCXBveZ04OpNQXPceN4WRTtbipHahSbXPga6kJU5bM4uL5M7CRsRodNQbS8eO9f2O7caKoUnKm22viR418veUoAK+SQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAATMLo9JcbbXiw3+vqIZeWFLobaKa8aW9nS0q266um+Ed/0NVaWzE3mu4qqjRlUfUty5s2FVi9baqqinuhvfeWS+ufu9Fz58vEjU47UsEKcnOTlJ5tvNnABSm23lk4AA8AB9L1Sal9LtYezeW1KOGYNtZSxC6i9mWXHo48aj7sluybTPRujPgx6usNor9LPEsbrNeM61w6MM/sxp5NeuTKtq3THStLm6VWe1NcVFZa8eCXhnJMoWFasspYXeeJwe97jUBqkrUlT/wDE408lkpQvrhNf/Zv9Z87078FXCa9vVuNDMbuLS54wtb9qpSk/RU4pSj3tSOZafaLo9xNQntQ75JY+DZunpdeKysM8mAutMtFcf0PxqeEaRYbWsbuKzSnvjUj6UJLdKPamUpeKVWFaCqU2nF8Gt6ZzmnF4YABsPAAZU4TqTUYRcm+pHqTbwgYgsaOGZrOtUy7I/wByTGwtlxg33yZ06Wj3M1lpLxNTrRRSgupWFs+EHHukyNWw1pZ0Z59kv7irpFzBZST8Aq0WVwMqkJU5OM4uLXUzE5jTTwzaAAeAAF9oPohpFppjMcJ0cw2re3GW1NrdClH0pye6K7+PBZs11q1OjB1Kkkori3uSPYxcnhcShB670G8FbBLa3pXGmONXN9c5ZztrF9FRi+Tm1tSXatk+gUdQGqSlRdL/wAijPNZOU764cvb0m71FGuvtG0ehPZhtT74pY+LR0YaVXksvCPBAPa2k/gxavMSov9DzxLA6yXiulXdann2xqZt+qSPOGtrU5pdq7nK6vqMb/CHPZhiNsm4LPgpx4wffuz3Js6ukdMNL1WapUp7M3wUtzfhxT8E8mmvY1qKy1ldx84ABaCGDKnN06kZx4xeaMQeptPKB2GjUjVpRqR4SRkVmD1spyot7nvj3lmXayuFcUVPnz8SBOOzLBS4jR6G4eS8WW9EYusTpdLbNpeNDxl+ZSlY1O26iu8cHvRLpS2ogAHPNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAABusqXS3MIPhnm+4vSuwanunVf3V//ewsS2aPR6uhtPjIh1pZlgxrTVOlKo+EVmdfnJzk5SebbzZaYxUypRpJ+U833Iqjma1X26qprhH5s20I4WQADjG8H13wZ9Vf6wtJql/isJLR/DJRlcpbvhFR740U+W7OTXBZLdtJnyI/QzUHovS0S1T4FhsaShcVreN3dvLe61VKUs+bWaj3RRTOnGuVNK0/FF4qVHhPsXN/p4vJP063Var7XBHdrS3oWlrStbWjToUKMFClSpxUYwilkkktySXUbQD89ttvLLOAAeA6hrY0AwbWJorWwbFKcYV4pzsrtRznbVct0lzT3Jx6125Nfn1pTgeI6NaQ32A4tR6G9sazpVYres1wafWmsmn1po/TQ8m+HNoxStsZwTS23pqLvKcrO6aWWc4ZSpt824uS7oI+l/Z1rtSjd/h9R5hPLj3SW/0az54OTqlupQ61cUeagAfbSvmy3pTrVVThxfF8i7tqFOhT2YLf1vrZpwyiqVupteNPe+7qJRbNLsY0aaqSXtP4EOrU2nhcAADrGkAAA1XNCFensyW/qfWilr0p0ajpzW9e8vyHitFVKHSJeNDf6jmarZRq03UivaXxRvpVMPDKgAFUJZb6G6O4lpZpPYaPYRSVS8vaqpwz8mC4ynLlGKTb7Ez9BtV+g2C6v9FqGB4PSTaSlc3MopVLmrlvnL8l1LcfBPAX0YpTeO6Y16SlOEo4faya8l5KdX15Omu7PmepT4f8AaHrtS4vHYU3iFPGe+XH4cPHJYdLtlGn1r4v5AAHzc6oNF9aWt/ZVrK9t6Vza16cqdWlUipQnFrJpp7mmbweptPKB4M8I/VfLVzpZGph8ZzwHEtqpZSk23Ra8qjJ9maafWmuLTPlZ+gHhJ6MUtKNT+N0HSU7mwovELaWWbjOknJ5drhtx/iPz/AD9D9Cdbnq2nJ1nmpB7Lfb2PzXHvTKvqFuqNX2eDAALgQTKnN06kZx4xeZ2CElOEZx4NZo66W+EVNq3cHxg/czt6JX2ajpPn80aK8crJMe9ZMobmn0VedPqT3dxfFZjNPKcKq61kyfrNHboba4x+TNdCWJYK8AFVJYAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAOYpykori3kepZeAXeHw2LSmutrN+s3iKSSS4LcJNJNvgt5faUFTpqPYjnN5eSmxOe3dyXVHxURTKcnOcpPi3mYlGr1OtqSn2s6EVhYAANR6D9QrXo/gtLoUlT2FsJcstx+Xp+iWo3SSlpVqp0fxWFRTqq0hb3PNVqa2J58s3HNdjR8r+1G3nKhb1lwi5J+aTX/xZ2dHklKUfA7qAD42d0AAAHwfw4IUpapcPnPJTjjVLo32ujWzXs/A+8Hljw6dJKM6uAaJUailUp7d/cxT8nPxKfr+M93MtHQuhOtrdBQ5PL8En/wDhDv5KNvLJ5fMqUdupGHpNIxNtruuaX31+J+k6aTmk+0qj4F8kkslwQAL8c4AA9AAAAEkpRcXwayYB494OuzWzNxfU8jg2XO+4qNem/wATWUCaSk0gjorde2PAq6P8AUpU2Etr9K19vLns0/wAsj7eeX/AV0ko/Bcf0Sq1FGqqkcRt4+kmlTqezKl7T1Afmvpjbzoa1cKXN5Xg1ktljJSt44AAKySwAACDj9OlVwHEKVfLop2tSM8/RcXn7j8xj9CvCA0ko6Lao8fv51FCvXtZWdss97q1U4LLuTcu6LPz1Ps32X0Jxtq9Z8JNJeSefmjg6xJOcYgAH1I44JmFVNi62eqayIZnRn0dWE/RaZvtqvVVYz7GYyWU0dgI2Jw27OXOOUiScVIqdOUHwkmi616fW05Q7UQYvDTOugPcwUM6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAANN1jHau6S+1maSVhazvYdib9xItY7VeC718zGbxFlyab2WzaVX9nL27jcRcUeVnJc2l7y5XUtmhN9zIMFmSKYAFFOgAAAD7b4K2tSjoPj9XAMdueiwDE5qXSyfi2tfJJVHyjJJRlyyi+CZ8SBA1PTaGp2s7WuvZl6rsa70baNWVGanHij9Rac4VIRqU5RnCSTjKLzTT60ZHhjUzr60j0Co08JxCk8bwKCyp29Sps1bdf+3PJ+L9l7uWzvPSWjPhA6r8bo03Ux6WFV5rfQv6Eqbj3zScP+x8D1joZqmm1Go03UhylFZ9Ut6+XeyyUL+jVW94fefVQdIuNberOhRlVnpvgjjFZtQuVOXqUc2z53p14T+hmFUJ0tF7a6x+7aezNwlb0Ivtc1tPuUd/NHLtOj2qXc9ilQl5ppebeEjdO6owWZSR9Y1i6Z4JoJoxcY9jdwoU6aao0U/3lxUy3U4Lrb9yzb3I/PXTjSXEtL9K7/SPFpqV1e1dtpeTCK3RhHsjFJLuJesPTjSTTzHHi2kd869RZqjRgtmjQi/kwj1Lhv3t5b2zrR9t6I9FIaHSdSo9qrLi+SXYv1fPyK/e3ruHhe6gcxbTTXFbzgFy4EA7DSmqlOM1wkszIrsJuFl0Env4x/sWJebS4VxSU15+JAnHZeAACSYAAAAxrTVOlKo+EVmZFbi1wn+4g+2X9iLeXCt6Tm+PLxM4R2ngr223m+LOACjk8v8AV9pViWhWl9hpJhTTr2lTOVOTyjVg90oS7Gm12ceKP0K0D0twXTXRi2x7ArpVransp1YL8qhUWSqQfVJf2azTTPzWO1atdP9JdX+Nfp LR696OM8lcW1Txqs4RXU4+3JrJrN5PeUvpf0TjrdNVaT2aseBePgudKCp06ns ylTj2RVl2stlC/o1VveH3n1UHSLjW3qzoUZVZ6b4I4xWbULlTl6lHNs+d6deE/oZhVCdLRe2usfu2ns zcJW9CL7XNbT7lHfzRy7To9ql3PYpUJeaVLiQraSykupbC7xa6Xq80d0Ns8L0JsBiuN4FZRlLFZ3VCWdFLfsg6iqSXfKSPjF3b3N7eVb28r1LmvXm6lSrUk5SnJvNyk3vbb622e5tSvh16lq9aWMy0fwCXi2VCe1LZuJrfFdrW6PyT5Lv6z5hqh8HzFsVp074x6vR3DVKM7OxqJyVd+lW6/Gg+7j3rofq7wnNX2EW9SjoZaStsbk3Gcp3FVqlTq8lJLbTj2pZ55nFtMNV9SlmriWf5cqfpZWnC3b07yU3GliUs9rsjl9nBQin7SqvTLoXC5jK9uI4qLfKKXz7fuTvxLGWjXLNZWbkl3lSDifFLAWWjUlbRb28s1fy5+fLDPR2q+lvfSi4r0n9nmzj0apbqDjlGUktq3cM1u9aRdTinFd68Clr0FXo7Mn43E5Wp77MpYZ2unp2hV1LXM9TvYVoV27Oa2sou19lHJrgqmW3c5K7Mly7M/PGdnkrFfXS3q6XFdfrOgXe0eFhkiUzPj59UuqAA24pJSW1BPJNNbmjIhVKNKpLKpCMn1ovWFUOcY9yMfCa+Fah+k/ciIVlaZ1laTp3LiN4fS9uaJFa3qcJPxJePHif9joqSim+COhbahUjuqRTFvNmVWyv4R8iVWrlFGTjZ1eTg16wdtQpyajKSbMPiQl16VRDqnSNDq74vfJFZh9N0qyffx3FUJVXZL2nT0evGpBPb5+l8v8AxQ1amVzjKNk/Fjx8bq+K7+JLs69OcV4yaa7GWN7bfBK8o7T+TNJ0uy/n7zPYi8MqFjWcnnKMX6yzjKMlKLaaezR61GEIKMIqKXBLc7NGDilyRjDDqT8qpGPcjVLGrSXiws+p5m+cVyRaovLTL7T6AAAQAIAAAB2Gj8VD7qMjGj8VD7qMi/wBP3Ec58SuxnhT73+RHwvzyPczfjPzXe/yNGF+eR7mVi6/7ivFfoSo/ui5ABaiIARKt/Sp1ZU5RnnF5PJGP6So+jP2EN39vF4c0bFTk+RhjXk0+9lYS8QuoXCgoKS2eZEKvqNSNW4lKDyt3yJVNNRSYABBNgAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALrDPM4ev8WUpdYZ5nD1/izsaJ+/fh+qNFx7pJIeL+a/xImEPF/Nf4kd6//hp+Bope8ioABSScC+tKSpUIw68s33lLbR2pinHnJF+WDQ6KblUfgR7h8EGU2IXDrVdlPxI8O3tLK/n0drNrjlkijMtauWsUVz3s8oR/mAPqOguojT7S/RuOP2FtZ21pVjtWyu6+xKuucUk9z6m8j55j+EYlgOMXOEYvZ1bO+tp7FajUWTi/zXWn1oqVC/tbirKjSqKUo8UnvXiTZUpxSlJbmQQfe9Q/g/YjpRKhj+l9Oth2Cbp0rZ5xrXa4rthB8+L6uZ6ivNX2hFzgDwOtovhMbB0+jUI20YuCyyzUks0+3PMqur9OtP064VvFOb57PBfV9yJlDTatWO09x+cRvo3ValSdOEll3cDPF6FG1xW8trep0lGjXnTpz9KKk0n7DnDvg2c+n2c/k7XAvlo5SqJQls558DmzwlvI05SnLalJtvrZiXW1ZZbnS9qK2/dF1/3OWWW/LgSLqy6mO25pmMZ7TxgjnMW4yUk8mjgEBPBsL2zrqvRUuElukjcUdlXdCspfJe6SLuLUkmuD3ouGm3n3ilh+8uP1IVWGyzC4pRrUnCXB9ZzRpxpU1CPBGYJ3Vx29vG/ga8vGAR7+46Ck9l+PLcjfUlGEHOTySWbKK6rSr1nN8Opckc/U7z7vT2Y+8/8AmTbShtPLNbebzfE4AKiTAAAAAAAAADsNH4qH3UZGNH4qH3UZF/p+4jnPiVuM/N97/I0YX55HuZvxn5vvf5GjC/PI9zKxdf8AcV4r9CVD90XIALSRCivfO6v3maTde+d1fvs0lDr/AL2Xizox4IAA1HoAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAALrDPM4ev8WUpc4X5pHvZ2NFf/UPw/VGmv7pKImL+afxIlkXFVnaPsaZ375Ztp+BHp+8imABSCcb7Hzun94vDr9CWxWhLk0zsBZdDkurlHvItxxRExZN2ua6pLMpy+u6fS284Li1uKF7nkyHrcGqylyaM6D9nB758HDTPBtKtWmFWlhWpxvcLtKVreWvCVOUY7Kll1xllmn3rijtGP6B6I4/pHY6Q4vgdreYlYrKhWqJ7t+a2lwlk96zTyPz60I0qxvQ3SGhjmA3kra6pbmuMKkeuE11xfI9e4B4S2r+60ajf4tXurHEoU861jG3lUk59ahJLZafVm12n584SdEtQsbx3Om7Uozb93OVninjk+3177RaX1KpTUK2FjtPsmI3tlheH1r6/uaNpaW8HOrWqyUYQiutt8EeRNfvhA3mkTr6O6F1qtnhDzhXvVnGrdLg1HrjB+19nA6Prq1v6QaxsRnRlUqWOBU5529hCW55cJ1GvKl7l1c381LJ0W6DU7HF1fLaqcUuKj9X8Fy7SHe6k6vsU9y+YJVjaq5U25uOzlwRFLLBeFXvX5n1PT6UKtxGE1lb/kce6o7EcH0ZD6WXsId7QVvWUFJy3Z5l4VGL+dr7qOrqdlQo0NqEcPJppVJSlhkMAFdJILbCJzlQcZLxU/FZW29KVaqoR6+PYXtKEacFCKySWR29FoTdR1eS3eJoryWMGQALORSBjEpqnCKz2G97Ks7BXpxq0pU5cH7iirU5UqsqcuKZVtZoTjV6x70/h3EujJNYMAAcY3AAAAAAAAAHYaXxUPuoyMaXxUPuoyL/T9xHOfErcZ+a73+RowvzyPczfjPzXe/yI+GvK8h25r3FYuv+4rxj+hKh+6LoMBlpIhRXvndX7zNJvvk1d1M/SNBRLj97LxZ0Y8EAAaT0AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFrg886Mocn+JVEnDqypXC2vJluZN06sqNxGT4cDXUjtRaLowrwVSlKD61kZoFzlFSi0+DISeDr04yhNxksmjEu7q0p1978WXNEKeG1U/FnCS9hU7jSq9OT2FlEyNWLW8gl3h9XpbaPOO5lRcUZ0JqNTLNrPczZY3DoVc/kvc0Y2Fd2lfE9ye5ntSO3HcXZV4nauE3Wgs4viuRZxalFSTzT4M5aTWTWZZLq1jdU9l+TIsJuDOuAtLrD4ye1Rey31PgQ52VzF5dG33PMq1fT7ii8OOfDeS41Iy5kcG121x9DP2D4NcfQz9ho+71fyv0ZltI1Flgvk1e9fmQalCrTjtTpyiubROwXyavevzJumQlG7ipLHH5M11XmDLEqMX87X3UW5UYv52vuo7Os/wAN5o0UPeIYBNwu36Sp0s14seHays29CVeooR5kuUlFZZMw636GltSXjy49i5EoAu9GjGjBQjwRAlJyeWY1Jxpwc5vJLizmEozgpReaazTKvFLjpJ9FB+LHj2sywq42X0M3ufk9/I5y1ODuuq5cM95s6p7GSzIeJ2/S0+kivGgvaiYCfcUI16bhLma4y2Xk64CXiVv0VXbivEl7mRCk16MqNRwlxRPi1JZQABqPQAAAAADsNL4qH3UZGNH4qH3UZF/p+4jnPiVuM/Nd7/IhW0tivCXKRNxn5rvf5FcVLU5ON5Jrlj5ImUvcR2NPPeCPh9ZVbeOb8aO5kgtdGqqsFOPMiSWy8FXi9FqoqyW57n3kA7FOMZxcZLNPiQK+GpvOlPLsZwdQ0ypKo6lJZzyJFOqsYZWAlVLGvCEpvZ2Us+JFOLVo1KTxNYN6knwAANR6AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAWmHXilFUqsspLg31k864S7e/rU0oy8eK58TvWOrKCUK3r9SPUo53xLgEOniFCSW1nB9qN8bmhLhVj7Ttwu6FTfGSNDhJcivxnziH3PzZBJmLTjO4i4SUlsZbn2shlSv2ncza7SZT91EuxvHQ8Sebp/gW1OpCpHahJNdh14zpValKWcJOLJNlqk7dbE98fijGdJS3o7ACspYlJLKrBS7VuN8cRt2t+2vUd6nqdtNZ2seJGdKS5EwEX4fbem/+LHw+29N/8AuZn+/W/516nnVy7DjFfNH95GnBfJq96/M4xG6o1bfYpy2ZZp8M0+S7mWt7bfBK8o7T+TNJ0uy/n7zPYi8MqFjWcnnKMX6yzjKMlKLaaezR61GEIKMIqKXBLc7NGDilyRjDDqT8qpGPcjVLGrSXiws+p5m+cVyRaovLTL7T6AAAQAIAAAB2Gj8VD7qMjGj8VD7qMi/0/cRznxK7GeFPvf5EfC/PI9zN+M/Nd7/I0YX55HuZWLr/uK8V+hKj+6LkAFqIgBEq39KnVlTlGecXk8kY/pKj6M/YQ3f28XhzRsVOT5GGNeTS72VhLxC6hcKCgpLZ5kQq+o1I1biUoPK3fIlU01FJgAEE2AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==";
+
 // ─── SUPABASE ────────────────────────────────────────────────────────────────
 async function sbFetch(path, opts={}) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -147,28 +150,21 @@ const G = `
   }
 `;
 
-// ─── TAXIT LOGO ─────────────────────────────────────────────────────────────
-const LOGO_DARK = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAABkAAAAOECAYAAAD5Tf2iAAEAAElEQVR4nOz9748..."; // keeping abbreviated for space
-
+// ─── FIX 1: TAXIT LOGO using actual PNG ──────────────────────────────────────
 function TaxitLogo({ scale=1, dark=false }) {
-  const h = Math.round(56 * scale);
-  // Simple text logo for light theme
+  const h = Math.round(40 * scale);
   return (
-    <div style={{ display:"flex", alignItems:"center", gap:8 }}>
-      <div style={{
-        width: Math.round(32*scale), height: Math.round(32*scale),
-        borderRadius: Math.round(8*scale),
-        background: dark ? "#fff" : "linear-gradient(135deg,#0a1a6e,#2548e8)",
-        display:"flex", alignItems:"center", justifyContent:"center",
-        flexShrink:0
-      }}>
-        <span style={{ fontSize: Math.round(14*scale), fontWeight:900, color: dark ? "#0a1a6e" : "#fff", fontFamily:"'Plus Jakarta Sans',sans-serif", letterSpacing:"-0.04em" }}>T</span>
-      </div>
-      <span style={{
-        fontSize: Math.round(18*scale), fontWeight:800, letterSpacing:"-0.03em",
-        color: dark ? "#fff" : "#0a1a6e",
-        fontFamily:"'Plus Jakarta Sans',sans-serif"
-      }}>taxit</span>
+    <div style={{ display:"flex", alignItems:"center" }}>
+      <img
+        src={`data:image/jpeg;base64,${LOGO_PNG}`}
+        alt="Taxit"
+        style={{
+          height: h,
+          width: "auto",
+          objectFit: "contain",
+          filter: dark ? "brightness(0) invert(1)" : "none",
+        }}
+      />
     </div>
   );
 }
@@ -213,7 +209,6 @@ function Toast({ msg }) {
   );
 }
 
-// ─── STAT CARD (LIGHT) ───────────────────────────────────────────────────────
 function StatCard({ label, value, sub, color, icon, delay=0 }) {
   return (
     <div className={`card-hover fade-up fade-up-${delay}`} style={{
@@ -233,7 +228,6 @@ function StatCard({ label, value, sub, color, icon, delay=0 }) {
   );
 }
 
-// ─── ADMIN STAT CARD (ALSO LIGHT) ────────────────────────────────────────────
 function AdminStatCard({ label, value, sub, color, icon, delay=0 }) {
   return (
     <div className={`card-hover fade-up fade-up-${delay}`} style={{
@@ -279,11 +273,7 @@ function Login({ onLogin, users }) {
   return (
     <div style={{ minHeight:"100vh", background:"#f8faff", display:"flex", position:"relative", overflow:"hidden" }}>
       <style>{G}</style>
-
-      {/* Decorative background */}
       <div style={{ position:"absolute", inset:0, background:"radial-gradient(ellipse 80% 60% at 10% 0%, #dbeafe 0%, transparent 60%), radial-gradient(ellipse 60% 50% at 90% 100%, #ede9fe 0%, transparent 60%)", pointerEvents:"none" }}/>
-
-      {/* Left decorative panel */}
       <div className="hide-mobile" style={{
         width:"42%", background:"linear-gradient(145deg, #0a1a6e 0%, #1a35cc 60%, #2548e8 100%)",
         display:"flex", flexDirection:"column", justifyContent:"space-between", padding:"48px 52px",
@@ -313,7 +303,6 @@ function Login({ onLogin, users }) {
         </div>
       </div>
 
-      {/* Right login form */}
       <div style={{ flex:1, display:"flex", alignItems:"center", justifyContent:"center", padding:"24px 20px", position:"relative", zIndex:1 }}>
         <div style={{ width:"100%", maxWidth:400 }} className="fade-up">
           <div style={{ display:"flex", justifyContent:"center", marginBottom:36 }}>
@@ -322,7 +311,6 @@ function Login({ onLogin, users }) {
           <h1 style={{ fontSize:26, fontWeight:800, color:"#0f172a", marginBottom:6, letterSpacing:"-0.02em" }}>Welcome back</h1>
           <p style={{ fontSize:14, color:"#94a3b8", marginBottom:28 }}>Sign in to your account to continue</p>
 
-          {/* Tab */}
           <div style={{ display:"flex", background:"#f1f5f9", borderRadius:12, padding:4, marginBottom:24, gap:2 }}>
             {[["customer","Client Portal","👤"],["admin","Admin Panel","⚙"]].map(([m,l,ic]) => (
               <button key={m} onClick={()=>{setMode(m);setErr("");setUn("");setPw("");}} style={{
@@ -618,7 +606,6 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
         </div>
       </div>
 
-      {/* New Request Modal */}
       {showForm && (
         <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:200, padding:16 }} onClick={e=>e.target===e.currentTarget&&setShowForm(false)}>
           <div className="fade-up" style={{ background:"#fff", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:500, maxHeight:"90vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.15)" }}>
@@ -664,6 +651,120 @@ function CustomerPortal({ session, jobs, onNewJob, onLogout }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
+// FIX 2: PAYMENT FILTER PANEL for Dashboard
+// ═══════════════════════════════════════════════════════════════════════════
+function PaymentFilterPanel({ jobs, users }) {
+  const [filter, setFilter] = useState("all");
+  const [search, setSearch] = useState("");
+
+  const filtered = jobs.filter(j => {
+    const matchPay = filter === "all" || j.payment === filter;
+    const s = search.toLowerCase();
+    const u = users.find(x => x.id === j.userId);
+    const matchSearch = !s || j.title.toLowerCase().includes(s) || u?.name?.toLowerCase().includes(s) || j.id.toLowerCase().includes(s);
+    return matchPay && matchSearch;
+  });
+
+  const totalInvoiced  = filtered.reduce((s,j)=>s+(j.amount||0),0);
+  const totalCollected = filtered.reduce((s,j)=>s+(j.amountPaid||0),0);
+  const totalBalance   = totalInvoiced - totalCollected;
+
+  return (
+    <div className="fade-up" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 10px rgba(10,26,110,.04)", marginBottom:20 }}>
+      <div style={{ padding:"16px 22px", borderBottom:"1px solid #f1f5f9", background:"#f8faff", display:"flex", justifyContent:"space-between", alignItems:"center", flexWrap:"wrap", gap:10 }}>
+        <p style={{ fontSize:12, fontWeight:700, color:"#64748b", letterSpacing:"0.07em", textTransform:"uppercase" }}>
+          💳 Payment Details & Filter
+        </p>
+        <input value={search} onChange={e=>setSearch(e.target.value)} placeholder="🔍 Search client / job…"
+          style={{ padding:"7px 12px", background:"#fff", border:"1px solid #e2e8f0", borderRadius:9, fontSize:12, color:"#0f172a", width:200 }}/>
+      </div>
+
+      {/* Payment type filter tabs */}
+      <div style={{ display:"flex", gap:0, borderBottom:"1px solid #f1f5f9", overflowX:"auto" }}>
+        {[["all","All Jobs",jobs.length],
+          ["unpaid","Unpaid",jobs.filter(j=>j.payment==="unpaid").length],
+          ["partial","Partial",jobs.filter(j=>j.payment==="partial").length],
+          ["paid","Paid",jobs.filter(j=>j.payment==="paid").length],
+          ["waived","Waived",jobs.filter(j=>j.payment==="waived").length],
+        ].map(([k,l,cnt]) => {
+          const col = k==="all" ? "#4f46e5" : P[k]?.color || "#64748b";
+          return (
+            <button key={k} onClick={()=>setFilter(k)} style={{
+              flex:"0 0 auto", padding:"10px 16px", border:"none", borderBottom: filter===k ? `2.5px solid ${col}` : "2.5px solid transparent",
+              background:"transparent", color: filter===k ? col : "#94a3b8", fontSize:12, fontWeight:700,
+              cursor:"pointer", display:"flex", alignItems:"center", gap:6, whiteSpace:"nowrap", transition:"all .15s"
+            }}>
+              {l}
+              <span style={{ background: filter===k ? `${col}15` : "#f1f5f9", color: filter===k ? col : "#94a3b8", padding:"1px 7px", borderRadius:99, fontSize:10, fontWeight:800 }}>{cnt}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Summary row */}
+      <div style={{ display:"grid", gridTemplateColumns:"repeat(3,1fr)", borderBottom:"1px solid #f1f5f9" }}>
+        {[["Total Invoiced", sar(totalInvoiced), "#0f172a"],
+          ["Total Collected", sar(totalCollected), "#059669"],
+          ["Outstanding Balance", sar(totalBalance), totalBalance > 0 ? "#d97706" : "#059669"]
+        ].map(([l,v,c],i) => (
+          <div key={l} style={{ padding:"14px 18px", borderRight: i < 2 ? "1px solid #f1f5f9" : "none" }}>
+            <p style={{ fontSize:18, fontWeight:800, color:c }}>{v}</p>
+            <p style={{ fontSize:11, color:"#94a3b8", marginTop:3, fontWeight:600 }}>{l}</p>
+          </div>
+        ))}
+      </div>
+
+      {/* Jobs list */}
+      <div style={{ maxHeight:340, overflowY:"auto" }}>
+        {filtered.length === 0 ? (
+          <p style={{ padding:"32px 22px", textAlign:"center", color:"#94a3b8", fontSize:13 }}>No jobs found.</p>
+        ) : (
+          <table style={{ width:"100%", borderCollapse:"collapse", minWidth:640 }}>
+            <thead>
+              <tr style={{ background:"#f8faff" }}>
+                {["Client","Job","Status","Invoice","Paid","Balance","Payment"].map(h=>(
+                  <th key={h} style={{ padding:"10px 14px", textAlign:"left", fontSize:10, fontWeight:700, color:"#64748b", letterSpacing:"0.07em", textTransform:"uppercase", whiteSpace:"nowrap" }}>{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {filtered.slice().reverse().map((j,i) => {
+                const u = users.find(x=>x.id===j.userId);
+                const bal = (j.amount||0)-(j.amountPaid||0);
+                return (
+                  <tr key={j.id} style={{ borderTop:"1px solid #f8faff", transition:"background .12s" }}
+                    onMouseEnter={e=>e.currentTarget.style.background="#f8faff"}
+                    onMouseLeave={e=>e.currentTarget.style.background="transparent"}>
+                    <td style={{ padding:"11px 14px" }}>
+                      <p style={{ fontSize:12, fontWeight:700, color:"#0f172a" }}>{u?.name || "—"}</p>
+                      <p style={{ fontSize:10, color:"#94a3b8" }}>{u?.company}</p>
+                    </td>
+                    <td style={{ padding:"11px 14px" }}>
+                      <p style={{ fontSize:12, color:"#334155", fontWeight:600 }}>{j.title}</p>
+                      <p style={{ fontSize:10, color:"#94a3b8" }}>{j.id}</p>
+                    </td>
+                    <td style={{ padding:"11px 14px" }}><SBadge v={j.status}/></td>
+                    <td style={{ padding:"11px 14px", fontSize:12, color:"#0f172a", fontWeight:600, whiteSpace:"nowrap" }}>{j.amount ? sar(j.amount) : "—"}</td>
+                    <td style={{ padding:"11px 14px", fontSize:12, color:"#059669", fontWeight:600, whiteSpace:"nowrap" }}>{j.amountPaid ? sar(j.amountPaid) : "—"}</td>
+                    <td style={{ padding:"11px 14px", minWidth:110 }}>
+                      {j.amount ? <>
+                        <p style={{ fontSize:12, fontWeight:700, color:bal>0?"#d97706":"#059669", whiteSpace:"nowrap" }}>{bal>0?sar(bal):"✓ Settled"}</p>
+                        <ProgressBar paid={j.amountPaid||0} total={j.amount}/>
+                      </> : <span style={{ color:"#cbd5e1", fontSize:12 }}>—</span>}
+                    </td>
+                    <td style={{ padding:"11px 14px" }}><PBadge v={j.payment}/></td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ═══════════════════════════════════════════════════════════════════════════
 // ADMIN — DASHBOARD
 // ═══════════════════════════════════════════════════════════════════════════
 function DashView({ jobs, users }) {
@@ -691,22 +792,8 @@ function DashView({ jobs, users }) {
         {cards.map((c,i) => <AdminStatCard key={c.label} {...c} delay={(i%4)+1}/>)}
       </div>
 
-      {/* Payment breakdown */}
-      <div className="fade-up" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:16, padding:22, marginBottom:20, boxShadow:"0 2px 10px rgba(10,26,110,.04)" }}>
-        <p style={{ fontSize:12, fontWeight:700, color:"#64748b", letterSpacing:"0.07em", textTransform:"uppercase", marginBottom:18 }}>Payment Breakdown</p>
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(4,1fr)", gap:12 }} className="grid-2-mobile">
-          {Object.entries(P).map(([k,v]) => {
-            const g = jobs.filter(j=>j.payment===k);
-            return (
-              <div key={k} style={{ background:"#f8faff", borderRadius:12, padding:"14px 16px", border:`1px solid ${v.color}20` }}>
-                <PBadge v={k}/>
-                <p style={{ fontSize:22, fontWeight:800, color:"#0f172a", marginTop:10 }}>{g.length}</p>
-                <p style={{ fontSize:11, color:"#64748b", marginTop:3 }}>{sar(g.reduce((s,j)=>s+(j.amountPaid||0),0))}</p>
-              </div>
-            );
-          })}
-        </div>
-      </div>
+      {/* FIX 2: Payment filter panel inserted here */}
+      <PaymentFilterPanel jobs={jobs} users={users}/>
 
       {/* Recent activity */}
       <div className="fade-up" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:16, overflow:"hidden", boxShadow:"0 2px 10px rgba(10,26,110,.04)" }}>
@@ -741,6 +828,8 @@ function DashView({ jobs, users }) {
 
 // ═══════════════════════════════════════════════════════════════════════════
 // ADMIN — JOB REQUESTS
+// FIX 3: Modal click-outside only fires when clicking the BACKDROP itself,
+//         not any child. Also stopPropagation added on modal content.
 // ═══════════════════════════════════════════════════════════════════════════
 function JobsView({ jobs, users, onUpdate, onAddJob }) {
   const [tab, setTab]         = useState("all");
@@ -758,7 +847,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
     });
   }, [jobs.length]);
 
-  // Auto-derive payment status from amounts
   function derivePayment(amount, amountPaid) {
     const amt = Number(amount)||0;
     const pd  = Number(amountPaid)||0;
@@ -800,6 +888,14 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
   const bl = Math.max(0,(ef.amount||0)-(ef.amountPaid||0));
   const nfBl = Math.max(0,(Number(nf.amount)||0)-(Number(nf.amountPaid)||0));
 
+  // ── FIX 3: backdrop click handler that only fires on the backdrop itself ──
+  function handleBackdropClick(e) {
+    if (e.target === e.currentTarget) setShowAdd(false);
+  }
+  function handleEditBackdropClick(e) {
+    if (e.target === e.currentTarget) setEditJob(null);
+  }
+
   return (
     <div>
       <div className="fade-up" style={{ marginBottom:20, display:"flex", alignItems:"flex-start", justifyContent:"space-between", flexWrap:"wrap", gap:12 }}>
@@ -812,17 +908,23 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
         </button>
       </div>
 
-      {/* Admin New Job Modal */}
+      {/* FIX 3: Admin New Job Modal — stopPropagation on inner content div */}
       {showAdd && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:16 }}
-          onClick={e=>e.target===e.currentTarget&&setShowAdd(false)}>
-          <div className="fade-up" style={{ background:"#fff", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:540, maxHeight:"92vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.15)", border:"1px solid #e2e8f0" }}>
+        <div
+          style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:16 }}
+          onClick={handleBackdropClick}
+        >
+          <div
+            className="fade-up"
+            style={{ background:"#fff", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:540, maxHeight:"92vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.15)", border:"1px solid #e2e8f0" }}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}
+          >
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:22 }}>
               <h3 style={{ fontSize:18, fontWeight:800, color:"#0f172a" }}>Assign New Job to Client</h3>
               <button onClick={()=>setShowAdd(false)} style={{ background:"#f1f5f9", border:"1px solid #e2e8f0", borderRadius:8, width:32, height:32, color:"#64748b", fontSize:18, cursor:"pointer" }}>×</button>
             </div>
 
-            {/* Client */}
             <div style={{ marginBottom:14 }}>
               <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Client *</label>
               <select value={nf.userId} onChange={e=>setNf({...nf,userId:e.target.value})}
@@ -832,14 +934,12 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
               </select>
             </div>
 
-            {/* Title */}
             <div style={{ marginBottom:14 }}>
               <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Job Title *</label>
               <input value={nf.title} onChange={e=>setNf({...nf,title:e.target.value})} placeholder="e.g. VAT Return Q2 2025"
                 style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #e2e8f0", borderRadius:11, fontSize:14, color:"#0f172a", background:"#fafbff" }}/>
             </div>
 
-            {/* Category + Priority */}
             <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:12, marginBottom:14 }}>
               <div>
                 <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Category</label>
@@ -857,14 +957,12 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
               </div>
             </div>
 
-            {/* Description */}
             <div style={{ marginBottom:14 }}>
               <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:7 }}>Description *</label>
               <textarea value={nf.description} onChange={e=>setNf({...nf,description:e.target.value})} placeholder="Describe the job scope..." rows={3}
                 style={{ width:"100%", padding:"11px 14px", border:"1.5px solid #e2e8f0", borderRadius:11, fontSize:13, color:"#0f172a", background:"#fafbff", resize:"vertical" }}/>
             </div>
 
-            {/* ── PAYMENT SECTION ── */}
             <div style={{ background:"#f8faff", border:"1.5px solid #e0e7ff", borderRadius:14, padding:"16px 18px", marginBottom:14 }}>
               <p style={{ fontSize:11, fontWeight:700, color:"#4338ca", textTransform:"uppercase", letterSpacing:"0.08em", marginBottom:14, display:"flex", alignItems:"center", gap:6 }}>
                 <span>💳</span> Payment Details
@@ -882,7 +980,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
                 </div>
               </div>
 
-              {/* Payment summary */}
               {(Number(nf.amount)||0) > 0 && (
                 <div style={{ background:"#fff", borderRadius:10, padding:"12px 14px", border:"1px solid #e2e8f0", marginBottom:12 }}>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr 1fr", textAlign:"center", marginBottom:8 }}>
@@ -897,7 +994,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
                 </div>
               )}
 
-              {/* Payment status override */}
               <div>
                 <label style={{ display:"block", fontSize:11, fontWeight:700, color:"#475569", textTransform:"uppercase", letterSpacing:"0.07em", marginBottom:8 }}>Payment Status</label>
                 <div style={{ display:"flex", flexWrap:"wrap", gap:6 }}>
@@ -923,7 +1019,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
         </div>
       )}
 
-      {/* Filters */}
       <div className="fade-up" style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:16, gap:10, flexWrap:"wrap" }}>
         <div style={{ display:"flex", gap:4, background:"#f1f5f9", borderRadius:12, padding:4, flexWrap:"wrap" }}>
           {[["all","All"],["pending","Pending"],["inprogress","In Progress"],["completed","Done"]].map(([k,l]) => (
@@ -942,7 +1037,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
         }}/>
       </div>
 
-      {/* Table */}
       <div className="fade-up hide-mobile" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:16, overflow:"auto", boxShadow:"0 2px 10px rgba(10,26,110,.04)" }}>
         <table style={{ width:"100%", borderCollapse:"collapse", minWidth:800 }}>
           <thead>
@@ -1004,7 +1098,6 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
         </table>
       </div>
 
-      {/* Mobile cards */}
       <div style={{ display:"none" }} className="mobile-cards">
         {filtered.slice().reverse().map(j => {
           const u = users.find(x=>x.id===j.userId);
@@ -1027,10 +1120,18 @@ function JobsView({ jobs, users, onUpdate, onAddJob }) {
         })}
       </div>
 
-      {/* Edit Modal */}
+      {/* Edit Modal — also uses stopPropagation fix */}
       {editJob && (
-        <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:16 }}>
-          <div className="fade-up" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:500, maxHeight:"94vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.12)" }}>
+        <div
+          style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:300, padding:16 }}
+          onClick={handleEditBackdropClick}
+        >
+          <div
+            className="fade-up"
+            style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:20, padding:"28px 24px", width:"100%", maxWidth:500, maxHeight:"94vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.12)" }}
+            onClick={e => e.stopPropagation()}
+            onKeyDown={e => e.stopPropagation()}
+          >
             <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
               <h3 style={{ fontWeight:800, color:"#0f172a", fontSize:18 }}>Update Request</h3>
               <button onClick={()=>setEditJob(null)} style={{ background:"#f1f5f9", border:"1px solid #e2e8f0", borderRadius:8, width:32, height:32, color:"#64748b", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center" }}>×</button>
@@ -1280,7 +1381,12 @@ function UserModal({ editing, form, f, showPw, setShowPw, err, onSave, onClose }
   const isNew = !editing;
   return (
     <div style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.4)", backdropFilter:"blur(8px)", display:"flex", alignItems:"center", justifyContent:"center", zIndex:500, padding:16 }}>
-      <div className="fade-up" style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:22, padding:"28px 24px", width:"100%", maxWidth:460, maxHeight:"94vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.12)" }}>
+      <div
+        className="fade-up"
+        style={{ background:"#fff", border:"1px solid #e2e8f0", borderRadius:22, padding:"28px 24px", width:"100%", maxWidth:460, maxHeight:"94vh", overflowY:"auto", boxShadow:"0 24px 80px rgba(10,26,110,.12)" }}
+        onClick={e => e.stopPropagation()}
+        onKeyDown={e => e.stopPropagation()}
+      >
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:6 }}>
           <h3 style={{ fontWeight:800, color:"#0f172a", fontSize:18 }}>{isNew?"Add New Client":"Edit Client"}</h3>
           <button onClick={onClose} style={{ background:"#f1f5f9", border:"1px solid #e2e8f0", borderRadius:8, width:32, height:32, color:"#64748b", fontSize:18, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer" }}>×</button>
@@ -1356,7 +1462,7 @@ function UserModal({ editing, form, f, showPw, setShowPw, err, onSave, onClose }
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ADMIN — SETUP (with RLS SQL fix)
+// ADMIN — SETUP
 // ═══════════════════════════════════════════════════════════════════════════
 function SetupView() {
   const [copied, setCopied] = useState(false);
@@ -1402,21 +1508,15 @@ CREATE TABLE public.comments (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
--- 3. Enable RLS on all tables (fixes Supabase security warnings)
+-- 3. Enable RLS
 ALTER TABLE public.users    ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.jobs     ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.comments ENABLE ROW LEVEL SECURITY;
 
--- 4. Create permissive policies so the anon key can read/write
---    (for a private internal tool — tighten these later with auth)
+-- 4. Create permissive policies
 CREATE POLICY "allow_all_users"    ON public.users    FOR ALL USING (true) WITH CHECK (true);
 CREATE POLICY "allow_all_jobs"     ON public.jobs     FOR ALL USING (true) WITH CHECK (true);
-CREATE POLICY "allow_all_comments" ON public.comments FOR ALL USING (true) WITH CHECK (true);
-
--- 5. Storage bucket for file uploads (run separately if needed)
--- INSERT INTO storage.buckets (id, name, public)
--- VALUES ('job-files', 'job-files', true)
--- ON CONFLICT DO NOTHING;`;
+CREATE POLICY "allow_all_comments" ON public.comments FOR ALL USING (true) WITH CHECK (true);`;
 
   function copy() { try{navigator.clipboard.writeText(sql);}catch(e){} setCopied(true); setTimeout(()=>setCopied(false),2500); }
 
@@ -1434,19 +1534,8 @@ CREATE POLICY "allow_all_comments" ON public.comments FOR ALL USING (true) WITH 
         </div>
       </div>
 
-      {/* RLS notice */}
-      <div className="fade-up" style={{ background:"#f0fdf4", border:"1px solid #bbf7d0", borderRadius:14, padding:"16px 20px", marginBottom:22, display:"flex", gap:14, alignItems:"flex-start" }}>
-        <span style={{ fontSize:24, flexShrink:0 }}>🔒</span>
-        <div>
-          <p style={{ fontSize:14, fontWeight:700, color:"#14532d", marginBottom:4 }}>RLS (Row Level Security) — Fixed in SQL below</p>
-          <p style={{ fontSize:13, color:"#166534", lineHeight:1.6 }}>
-            The SQL below enables RLS on all tables and creates permissive policies, which resolves the Supabase security warnings: <em>"RLS Disabled in Public"</em> and <em>"Sensitive Columns Exposed"</em>.
-          </p>
-        </div>
-      </div>
-
       {[["1","Create Supabase project","supabase.com → sign up free → New project. Wait ~2 min."],
-        ["2","Run the SQL","SQL Editor → New query → paste the SQL below → Run. This creates tables, enables RLS, and sets policies."],
+        ["2","Run the SQL","SQL Editor → New query → paste the SQL below → Run."],
         ["3","Copy API keys","Project Settings → API → copy Project URL and anon key."],
         ["4","Update env variables","Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_KEY in your .env file."],
         ["5","Deploy to Vercel","Connect GitHub repo to Vercel, add env vars, deploy. Free forever."]
@@ -1506,7 +1595,7 @@ function SideNavBtn({ n, page, goPage, users, isMini }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ADMIN SHELL (LIGHT THEME)
+// ADMIN SHELL
 // ═══════════════════════════════════════════════════════════════════════════
 function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, onDeleteUser, onLogout }) {
   const [page, setPage]         = useState("dashboard");
@@ -1570,11 +1659,10 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
     <div className="admin-wrap">
       <style>{G + ADMIN_CSS}</style>
 
-      {/* ── DESKTOP SIDEBAR ── */}
       <div className="desk-sidebar" style={{ width:mini?64:220 }}>
         <div style={{ padding:mini?"14px 0":"18px 14px 14px", borderBottom:"1px solid #f1f5f9", display:"flex", alignItems:"center", justifyContent:mini?"center":"space-between", position:"relative" }}>
           {!mini && <TaxitLogo scale={0.8}/>}
-          {mini && <span style={{ fontSize:22 }}>🏷</span>}
+          {mini && <span style={{ fontSize:18 }}>🏷</span>}
           {!mini && (
             <button onClick={()=>setCollapsed(true)} title="Collapse" style={{ background:"#f1f5f9", border:"1px solid #e2e8f0", borderRadius:8, width:26, height:26, color:"#94a3b8", fontSize:13, display:"flex", alignItems:"center", justifyContent:"center", cursor:"pointer", flexShrink:0 }}>‹</button>
           )}
@@ -1612,10 +1700,8 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
         </div>
       </div>
 
-      {/* ── MOBILE OVERLAY ── */}
       {mobileOpen && <div onClick={()=>setMobileOpen(false)} style={{ position:"fixed", inset:0, background:"rgba(15,23,42,.3)", zIndex:299 }}/>}
 
-      {/* ── MOBILE SLIDE-IN SIDEBAR ── */}
       {mobileOpen && (
         <div style={{ position:"fixed", left:0, top:0, bottom:0, width:240, background:"#fff", borderRight:"1px solid #e2e8f0", display:"flex", flexDirection:"column", zIndex:300, animation:"slideInLeft .25s cubic-bezier(.4,0,.2,1) both", boxShadow:"4px 0 20px rgba(10,26,110,.10)" }}>
           <div style={{ padding:"18px 16px 14px", borderBottom:"1px solid #f1f5f9", display:"flex", alignItems:"center", justifyContent:"space-between" }}>
@@ -1635,9 +1721,7 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
         </div>
       )}
 
-      {/* ── MAIN CONTENT ── */}
       <div style={{ flex:1, overflow:"auto", display:"flex", flexDirection:"column", minWidth:0 }}>
-        {/* Mobile top bar */}
         <div className="mob-topbar" style={{ padding:"11px 16px", background:"#fff", borderBottom:"1px solid #e2e8f0", alignItems:"center", justifyContent:"space-between", position:"sticky", top:0, zIndex:50, boxShadow:"0 1px 8px rgba(10,26,110,.06)" }}>
           <TaxitLogo scale={0.75}/>
           <div style={{ display:"flex", alignItems:"center", gap:8 }}>
@@ -1648,7 +1732,6 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
           </div>
         </div>
 
-        {/* Page content */}
         <div className="admin-content" style={{ padding:"26px 22px", flex:1 }}>
           {page==="dashboard" && <DashView jobs={jobs} users={users}/>}
           {page==="jobs"      && <JobsView jobs={jobs} users={users} onUpdate={onUpdate} onAddJob={onAddJob}/>}
@@ -1657,7 +1740,6 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
         </div>
       </div>
 
-      {/* Mobile bottom tab bar */}
       <div className="mob-tabs" style={{ position:"fixed", bottom:0, left:0, right:0, height:62, background:"rgba(255,255,255,.97)", borderTop:"1px solid #e2e8f0", alignItems:"center", justifyContent:"space-around", zIndex:100, backdropFilter:"blur(16px)" }}>
         {nav.map(n => {
           const active = page === n.id;
@@ -1677,7 +1759,7 @@ function AdminShell({ jobs, users, onUpdate, onAddJob, onAddUser, onEditUser, on
 }
 
 // ═══════════════════════════════════════════════════════════════════════════
-// ROOT — with session persistence
+// ROOT
 // ═══════════════════════════════════════════════════════════════════════════
 async function loadAll(table) {
   const r = await fetch(`${SUPABASE_URL}/rest/v1/${table}?select=*`, {
@@ -1689,19 +1771,16 @@ async function loadAll(table) {
 }
 
 export default function App() {
-  // ── 1. Session loaded from localStorage ──
   const [session, setSession] = useState(() => loadSession());
   const [jobs,    setJobs]    = useState(SEED_JOBS);
   const [users,   setUsers]   = useState(SEED_USERS);
   const [loading, setLoading] = useState(USE_BACKEND);
 
-  // When session changes, persist it
   useEffect(() => {
     if (session) saveSession(session);
     else clearSession();
   }, [session]);
 
-  // Load from Supabase on mount
   useEffect(() => {
     if (!USE_BACKEND) return;
     Promise.all([loadAll("users"), loadAll("jobs")])
@@ -1710,18 +1789,16 @@ export default function App() {
       .finally(() => setLoading(false));
   }, []);
 
-  // If session is restored from localStorage, reload users to validate the user still exists
   useEffect(() => {
     if (!session || session.role === "admin" || !USE_BACKEND) return;
     loadAll("users").then(u => {
       setUsers(u);
-      // Validate restored customer session
       const stillExists = u.find(x => x.id === session.user?.id);
       if (!stillExists) { clearSession(); setSession(null); }
     }).catch(() => {});
-  }, []); // run once on mount
+  }, []);
 
-  const handleLogin = useCallback((s) => { setSession(s); }, []);
+  const handleLogin  = useCallback((s) => { setSession(s); }, []);
   const handleLogout = useCallback(() => { setSession(null); }, []);
 
   const addJob = useCallback(d => {
@@ -1757,7 +1834,6 @@ export default function App() {
   const editUser = useCallback((id,upd) => {
     if (USE_BACKEND) db.updateUser(id,upd).catch(e=>console.error("updateUser:",e.message));
     setUsers(p=>p.map(u=>u.id===id?{...u,...upd}:u));
-    // Update restored session if editing own user
     setSession(s => s?.user?.id === id ? { ...s, user:{ ...s.user, ...upd } } : s);
   }, []);
 
